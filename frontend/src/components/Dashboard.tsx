@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import type { Session } from "@supabase/supabase-js";
 import {
   Bar,
   BarChart,
@@ -11,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import { api } from "../lib/api";
+import { ProfilePanel } from "./ProfilePanel";
 import type {
   ActivityLogResponse,
   DepartmentAnalytics,
@@ -27,13 +29,18 @@ const activityFallback = [
 
 const chartPalette = ["#45725f", "#e99821", "#b8d3c3", "#244036"];
 
-export const Dashboard = () => {
+const getMetadataValue = (metadata: Record<string, unknown> | undefined, key: string) => {
+  const value = metadata?.[key];
+  return typeof value === "string" ? value : "";
+};
+
 type DashboardProps = {
   session: Session;
   onSignOut: () => Promise<void>;
 };
 
 export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
+  const [profileOpen, setProfileOpen] = useState(false);
   const [referenceData, setReferenceData] = useState<ReferenceData>({ departments: [], activities: [] });
   const [analytics, setAnalytics] = useState<DepartmentAnalytics[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -46,16 +53,20 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
   const [submitting, setSubmitting] = useState(false);
 
   const activityOptions = referenceData.activities.length > 0 ? referenceData.activities : activityFallback;
+  const profileMetadata = session.user.user_metadata as Record<string, unknown> | undefined;
+  const profileName = getMetadataValue(profileMetadata, "full_name");
+  const profileDepartment = getMetadataValue(profileMetadata, "department");
+  const profileSummary = [profileName, profileDepartment].filter(Boolean).join(" · ");
 
   useEffect(() => {
     let active = true;
 
     const loadData = async () => {
       try {
-            const [refs, analyticsData, leaderboardData] = await Promise.all([
-              api.getReferenceData(session.access_token),
-              api.getAnalytics(session.access_token),
-              api.getLeaderboard(session.access_token),
+        const [refs, analyticsData, leaderboardData] = await Promise.all([
+          api.getReferenceData(session.access_token),
+          api.getAnalytics(session.access_token),
+          api.getLeaderboard(session.access_token),
         ]);
 
         if (!active) return;
@@ -87,7 +98,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
     return () => {
       active = false;
     };
-  }, []);
+  }, [session.access_token]);
 
   const alerts = useMemo(() => analytics.filter((entry) => entry.exceedsBaseline), [analytics]);
 
@@ -99,9 +110,9 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
 
   const refreshData = async () => {
     const [analyticsData, leaderboardData, refs] = await Promise.all([
-            api.getAnalytics(session.access_token),
-            api.getLeaderboard(session.access_token),
-            api.getReferenceData(session.access_token),
+      api.getAnalytics(session.access_token),
+      api.getLeaderboard(session.access_token),
+      api.getReferenceData(session.access_token),
     ]);
 
     setAnalytics(analyticsData);
@@ -127,11 +138,14 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
       setError(null);
       setSubmitting(true);
 
-            const response = await api.submitLog({
-        deptId: selectedDeptId,
-        activityType: selectedActivityType,
-        units: parsedUnits,
-            }, session.access_token);
+      const response = await api.submitLog(
+        {
+          deptId: selectedDeptId,
+          activityType: selectedActivityType,
+          units: parsedUnits,
+        },
+        session.access_token,
+      );
 
       setSubmission(response);
       await refreshData();
@@ -145,7 +159,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-carbon-900 text-white flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-carbon-900 text-white">
         <div className="rounded-3xl border border-white/10 bg-white/5 px-6 py-4 text-sm tracking-wide text-white/70 shadow-glow backdrop-blur">
           Loading campus sustainability dashboard...
         </div>
@@ -164,6 +178,8 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
               <p className="max-w-2xl text-sm leading-6 text-carbon-100/80 sm:text-base">
                 Monitor department emissions, compare them against baseline quotas, and surface quota breaches in real time.
               </p>
+              <p className="text-xs text-carbon-200/70">Signed in as {session.user.email ?? session.user.id}</p>
+              {profileSummary ? <p className="text-xs text-carbon-200/60">{profileSummary}</p> : null}
             </div>
             <div className="grid gap-3 sm:grid-cols-3">
               <StatCard label="Departments" value={referenceData.departments.length || analytics.length} />
@@ -171,12 +187,26 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
               <StatCard label="Leaderboard" value={leaderboard.length} />
             </div>
           </div>
+          <div className="mt-6 flex flex-wrap justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setProfileOpen(true)}
+              className="rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+            >
+              Profile
+            </button>
+            <button
+              type="button"
+              onClick={() => void onSignOut()}
+              className="rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+            >
+              Sign Out
+            </button>
+          </div>
         </header>
 
         {error ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 shadow-sm">
-            {error}
-          </div>
+          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 shadow-sm">{error}</div>
         ) : null}
 
         <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
@@ -186,9 +216,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                 <h2 className="text-xl font-semibold text-carbon-900">Data Entry</h2>
                 <p className="text-sm text-carbon-500">Submit a department activity and compute CO2e automatically.</p>
               </div>
-              <span className="rounded-full bg-carbon-100 px-3 py-1 text-xs font-medium text-carbon-700">
-                Prisma guarded
-              </span>
+              <span className="rounded-full bg-carbon-100 px-3 py-1 text-xs font-medium text-carbon-700">Prisma guarded</span>
             </div>
 
             <form className="grid gap-4 md:grid-cols-2" onSubmit={handleSubmit}>
@@ -241,7 +269,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                 />
               </FieldLabel>
 
-              <div className="md:col-span-2 flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3 md:col-span-2">
                 <button
                   type="submit"
                   disabled={submitting}
@@ -271,7 +299,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
           <section className="rounded-[2rem] border border-carbon-100 bg-white p-6 shadow-[0_24px_80px_rgba(12,23,21,0.08)]">
             <div className="mb-5">
               <h2 className="text-xl font-semibold text-carbon-900">Emission Trend</h2>
-              <p className="text-sm text-carbon-500">Current emissions compared with each department's baseline quota.</p>
+              <p className="text-sm text-carbon-500">Current emissions compared with each department&apos;s baseline quota.</p>
             </div>
 
             <div className="h-[360px] w-full">
@@ -344,6 +372,8 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
           </section>
         </div>
       </section>
+
+      <ProfilePanel session={session} open={profileOpen} onClose={() => setProfileOpen(false)} />
     </main>
   );
 };

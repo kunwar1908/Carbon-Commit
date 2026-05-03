@@ -1,0 +1,39 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1280" height="720" rx="32" fill="#F3F7F4"/>
+  <rect x="40" y="36" width="1200" height="108" rx="24" fill="#10201B"/>
+  <text x="76" y="82" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Carbon Commit Activity Log</text>
+  <text x="76" y="118" fill="#CFE0D7" font-family="Inter, Arial, sans-serif" font-size="16">Submission success state with calculated CO2e and quota result</text>
+  <rect x="40" y="168" width="560" height="500" rx="28" fill="#FFFFFF" stroke="#DDE6E1"/>
+  <text x="72" y="214" fill="#173127" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">Submission summary</text>
+  <rect x="72" y="242" width="496" height="84" rx="20" fill="#EAF4ED"/>
+  <text x="96" y="278" fill="#1F4B35" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700">Activity logged successfully</text>
+  <text x="96" y="304" fill="#4E6D5E" font-family="Inter, Arial, sans-serif" font-size="13">Baseline quota remains within range</text>
+  <rect x="72" y="354" width="236" height="112" rx="20" fill="#F8FAF9" stroke="#E4ECE7"/>
+  <text x="96" y="390" fill="#5E6F67" font-family="Inter, Arial, sans-serif" font-size="13">CO2e produced</text>
+  <text x="96" y="434" fill="#173127" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">18.2</text>
+  <text x="180" y="430" fill="#5E6F67" font-family="Inter, Arial, sans-serif" font-size="14">kg</text>
+  <rect x="332" y="354" width="236" height="112" rx="20" fill="#F8FAF9" stroke="#E4ECE7"/>
+  <text x="356" y="390" fill="#5E6F67" font-family="Inter, Arial, sans-serif" font-size="13">Current total</text>
+  <text x="356" y="434" fill="#173127" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">412</text>
+  <text x="72" y="512" fill="#173127" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">Recent log details</text>
+  <rect x="72" y="540" width="496" height="88" rx="18" fill="#10201B"/>
+  <text x="96" y="574" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700">Computer Engineering</text>
+  <text x="96" y="602" fill="#CFE0D7" font-family="Inter, Arial, sans-serif" font-size="13">Electricity - 22 kWh</text>
+  <text x="474" y="586" fill="#E29A2A" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">+18.2 kg</text>
+  <rect x="640" y="168" width="600" height="500" rx="28" fill="#FFFFFF" stroke="#DDE6E1"/>
+  <text x="672" y="214" fill="#173127" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">Leaderboard snapshot</text>
+  <rect x="672" y="244" width="536" height="68" rx="18" fill="#EAF4ED"/>
+  <text x="696" y="286" fill="#1F4B35" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700">1. Electrical Engineering</text>
+  <text x="1090" y="286" fill="#1F4B35" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700">241 kg</text>
+  <rect x="672" y="330" width="536" height="68" rx="18" fill="#F8FAF9"/>
+  <text x="696" y="372" fill="#173127" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700">2. Civil Engineering</text>
+  <text x="1102" y="372" fill="#5E6F67" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700">288 kg</text>
+  <rect x="672" y="416" width="536" height="68" rx="18" fill="#F8FAF9"/>
+  <text x="696" y="458" fill="#173127" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700">3. Computer Engineering</text>
+  <text x="1088" y="458" fill="#5E6F67" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700">412 kg</text>
+  <rect x="672" y="502" width="536" height="68" rx="18" fill="#F8FAF9"/>
+  <text x="696" y="544" fill="#173127" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700">4. Mechanical Engineering</text>
+  <text x="1086" y="544" fill="#5E6F67" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700">520 kg</text>
+  <rect x="672" y="592" width="536" height="44" rx="14" fill="#1A2E27"/>
+  <text x="692" y="620" fill="#CFE0D7" font-family="Inter, Arial, sans-serif" font-size="13">All values are illustrative and match the seeded demo dataset style.</text>
+</svg>

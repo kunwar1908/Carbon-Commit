@@ -1,0 +1,41 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1280" height="720" rx="32" fill="#F3F7F4"/>
+  <rect x="40" y="36" width="1200" height="108" rx="24" fill="#10201B"/>
+  <text x="76" y="82" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Carbon Commit Dashboard</text>
+  <text x="76" y="118" fill="#CFE0D7" font-family="Inter, Arial, sans-serif" font-size="16">Department emissions, baseline quotas, and leaderboard activity</text>
+  <rect x="40" y="168" width="380" height="132" rx="24" fill="#FFFFFF" stroke="#DDE6E1"/>
+  <text x="72" y="208" fill="#173127" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">Departments</text>
+  <text x="72" y="252" fill="#173127" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="700">4</text>
+  <text x="72" y="280" fill="#5E6F67" font-family="Inter, Arial, sans-serif" font-size="14">Seeded reference departments</text>
+  <rect x="450" y="168" width="380" height="132" rx="24" fill="#FFFFFF" stroke="#DDE6E1"/>
+  <text x="482" y="208" fill="#173127" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">Alerts</text>
+  <text x="482" y="252" fill="#B86A00" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="700">2</text>
+  <text x="482" y="280" fill="#5E6F67" font-family="Inter, Arial, sans-serif" font-size="14">Departments over baseline</text>
+  <rect x="860" y="168" width="380" height="132" rx="24" fill="#FFFFFF" stroke="#DDE6E1"/>
+  <text x="892" y="208" fill="#173127" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">Leaderboard</text>
+  <text x="892" y="252" fill="#173127" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="700">4</text>
+  <text x="892" y="280" fill="#5E6F67" font-family="Inter, Arial, sans-serif" font-size="14">Ranked by emissions</text>
+  <rect x="40" y="328" width="740" height="336" rx="28" fill="#FFFFFF" stroke="#DDE6E1"/>
+  <text x="72" y="372" fill="#173127" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">Department emissions vs baseline</text>
+  <line x1="92" y1="580" x2="708" y2="580" stroke="#D5E1DB" stroke-width="2"/>
+  <rect x="118" y="470" width="52" height="110" rx="12" fill="#4A7A61"/>
+  <rect x="238" y="438" width="52" height="142" rx="12" fill="#E29A2A"/>
+  <rect x="358" y="455" width="52" height="125" rx="12" fill="#BFD8C8"/>
+  <rect x="478" y="420" width="52" height="160" rx="12" fill="#203A31"/>
+  <rect x="598" y="446" width="52" height="134" rx="12" fill="#7DA08D"/>
+  <text x="108" y="612" fill="#5E6F67" font-family="Inter, Arial, sans-serif" font-size="12">CSE</text>
+  <text x="226" y="612" fill="#5E6F67" font-family="Inter, Arial, sans-serif" font-size="12">ME</text>
+  <text x="344" y="612" fill="#5E6F67" font-family="Inter, Arial, sans-serif" font-size="12">ECE</text>
+  <text x="468" y="612" fill="#5E6F67" font-family="Inter, Arial, sans-serif" font-size="12">Civil</text>
+  <text x="580" y="612" fill="#5E6F67" font-family="Inter, Arial, sans-serif" font-size="12">Other</text>
+  <rect x="808" y="328" width="432" height="336" rx="28" fill="#10201B"/>
+  <text x="840" y="372" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">Activity log form</text>
+  <rect x="840" y="402" width="368" height="48" rx="16" fill="#1A2E27"/>
+  <rect x="840" y="464" width="368" height="48" rx="16" fill="#1A2E27"/>
+  <rect x="840" y="526" width="368" height="48" rx="16" fill="#1A2E27"/>
+  <rect x="840" y="590" width="148" height="44" rx="16" fill="#E29A2A"/>
+  <text x="860" y="432" fill="#A7BBB0" font-family="Inter, Arial, sans-serif" font-size="14">Department</text>
+  <text x="860" y="494" fill="#A7BBB0" font-family="Inter, Arial, sans-serif" font-size="14">Activity Type</text>
+  <text x="860" y="556" fill="#A7BBB0" font-family="Inter, Arial, sans-serif" font-size="14">Units</text>
+  <text x="872" y="618" fill="#10201B" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">Record Activity</text>
+</svg>
