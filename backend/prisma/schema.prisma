@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model DeptMaster {
+  id       Int            @id @default(autoincrement()) @map("id")
+  name     String         @unique @map("name")
+  baseline Decimal        @db.Decimal(12, 2) @map("baseline")
+  logs     ActivityLogs[]
+
+  @@map("dept_master")
+}
+
+model EmissionRef {
+  activityType String         @id @map("activity_type")
+  factor       Decimal        @db.Decimal(12, 6) @map("factor")
+  unit         String         @map("unit")
+  logs         ActivityLogs[]
+
+  @@map("emission_ref")
+}
+
+model ActivityLogs {
+  id         Int          @id @default(autoincrement()) @map("id")
+  deptId     Int          @map("dept_id")
+  activityId String       @map("activity_id")
+  units      Decimal      @db.Decimal(12, 3) @map("units")
+  co2Result  Decimal      @db.Decimal(12, 3) @map("co2_result")
+  timestamp  DateTime     @default(now()) @map("timestamp")
+
+  dept       DeptMaster   @relation(fields: [deptId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  activity   EmissionRef  @relation(fields: [activityId], references: [activityType], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([deptId])
+  @@index([activityId])
+  @@map("activity_logs")
+}
