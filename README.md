@@ -88,6 +88,9 @@ The images below were captured from the running frontend during development.
 
 ![Carbon Commit sign in screen](docs/snapshots/auth-live.png)
 
+## Table DFD
+![Carbon Commit Table Architecture](docs/snapshots/supabase-schema-ssnbnsockfjgsheigkbv.png)
+
 ## Backend Details
 
 The backend lives in [backend/src](backend/src) and is started from [backend/src/server.ts](backend/src/server.ts).
