@@ -18,7 +18,10 @@ logsRouter.post("/", async (req, res, next) => {
     }
 
     const input = logInputSchema.parse(req.body);
-    const record = await createActivityLog(input);
+    const record = await createActivityLog({
+      ...input,
+      userId: req.user.id,
+    });
 
     res.status(201).json({
       user: req.user,

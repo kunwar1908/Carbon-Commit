@@ -67,7 +67,7 @@ export const AuthScreen = ({ onAuthenticated }: AuthScreenProps) => {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 className="w-full rounded-2xl border border-carbon-200 px-4 py-3 outline-none transition focus:border-carbon-500"
-                placeholder="name@tiet.edu"
+                placeholder="name@thapar.edu"
                 required
               />
             </label>

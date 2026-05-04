@@ -3,6 +3,7 @@ import { prisma } from "../lib/prisma.js";
 import { decimalToNumber, numberToDecimal } from "../lib/decimal.js";
 
 export type CreateActivityLogInput = {
+  userId: string;
   deptId: number;
   activityType: string;
   units: number;
@@ -22,6 +23,10 @@ export type ActivityLogResult = {
 };
 
 export const createActivityLog = async (input: CreateActivityLogInput): Promise<ActivityLogResult> => {
+  if (!input.userId?.trim()) {
+    throw new Error("User ID is required.");
+  }
+
   if (!Number.isFinite(input.units) || input.units <= 0) {
     throw new Error("Units must be a positive number.");
   }
@@ -45,6 +50,7 @@ export const createActivityLog = async (input: CreateActivityLogInput): Promise<
 
     const created = await tx.activityLogs.create({
       data: {
+        userId: input.userId,
         deptId: input.deptId,
         activityId: input.activityType,
         units,
