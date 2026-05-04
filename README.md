@@ -82,11 +82,11 @@ The images below were captured from the running frontend during development.
 
 ### Overview
 
-![Carbon Commit authenticated dashboard](docs/snapshots/dashboard-live.png)
+![Carbon Commit authenticated dashboard](docs/snapshots/dashboard-live.svg)
 
 ### Auth Screen
 
-![Carbon Commit sign in screen](docs/snapshots/auth-live.png)
+![Carbon Commit sign in screen](docs/snapshots/auth-live.svg)
 
 ## Table DFD
 ![Carbon Commit Table Architecture](docs/snapshots/supabase-schema-ssnbnsockfjgsheigkbv.png)
