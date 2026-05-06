@@ -1,8 +1,13 @@
 import type {
   ActivityLogResponse,
+  AuditLogEntry,
+  CsvImportResult,
   DepartmentAnalytics,
   LeaderboardEntry,
   LogSubmission,
+  NotificationItem,
+  OperationsSummary,
+  RecentActivityLog,
   ReferenceData,
 } from "../types";
 
@@ -36,4 +41,61 @@ export const api = {
       method: "POST",
       body: JSON.stringify(body),
     }),
+  getRecentLogs: (accessToken: string, limit = 8) =>
+    request<RecentActivityLog[]>(`/logs/recent?limit=${limit}`, accessToken),
+  getOperationsSummary: (accessToken: string) => request<OperationsSummary>("/operations/summary", accessToken),
+  
+  // Operations endpoints
+  getAuditLogs: (
+    accessToken: string,
+    filters?: { entityType?: string; entityId?: string; startDate?: string; endDate?: string }
+  ) => {
+    const params = new URLSearchParams();
+    if (filters?.entityType) params.append("entityType", filters.entityType);
+    if (filters?.entityId) params.append("entityId", filters.entityId);
+    if (filters?.startDate) params.append("from", filters.startDate);
+    if (filters?.endDate) params.append("to", filters.endDate);
+    const query = params.toString() ? `?${params.toString()}` : "";
+    return request<AuditLogEntry[]>(`/operations/audit-logs${query}`, accessToken);
+  },
+
+  getNotifications: (accessToken: string, read?: boolean) => {
+    const query = read !== undefined ? `?isRead=${read}` : "";
+    return request<NotificationItem[]>(`/operations/notifications${query}`, accessToken);
+  },
+
+  importActivityLogsFromCsv: async (file: File, accessToken: string) => {
+    const csvText = await file.text();
+    return request<CsvImportResult>("/operations/imports/logs", accessToken, {
+      method: "POST",
+      body: JSON.stringify({ csvText }),
+    });
+  },
+
+  exportActivityCsv: (accessToken: string, format: "activity" | "audit" | "analytics" = "activity") =>
+    fetch(`${API_BASE_URL}/operations/exports/${format}?format=csv`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }).then((res) => {
+      if (!res.ok) throw new Error(`Export failed: ${res.status}`);
+      return res.blob();
+    }),
+
+  exportActivityPdf: (accessToken: string) =>
+    fetch(`${API_BASE_URL}/operations/exports/compliance?format=pdf`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }).then((res) => {
+      if (!res.ok) throw new Error(`Export failed: ${res.status}`);
+      return res.blob();
+    }),
+
+  markNotificationRead: (accessToken: string, id: number) =>
+    request<{ ok: boolean }>(`/operations/notifications/${id}/read`, accessToken, { method: "PATCH" }),
+  dismissNotification: (accessToken: string, id: number) =>
+    request<{ ok: boolean }>(`/operations/notifications/${id}`, accessToken, { method: "DELETE" }),
+  dismissAllNotifications: (accessToken: string) =>
+    request<{ count: number }>("/operations/notifications", accessToken, { method: "DELETE" }),
 };

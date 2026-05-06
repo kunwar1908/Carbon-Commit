@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 
@@ -28,6 +28,8 @@ export const ProfilePanel = ({ session, open, onClose }: ProfilePanelProps) => {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
 
   useEffect(() => {
     if (!open) {
@@ -111,6 +113,41 @@ export const ProfilePanel = ({ session, open, onClose }: ProfilePanelProps) => {
     setSaving(false);
   };
 
+  const uploadAvatar = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      setError("Please upload an image file for profile picture.");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    setError(null);
+    setMessage(null);
+
+    const extension = file.name.includes(".") ? file.name.split(".").pop() : "png";
+    const filePath = `profiles/${session.user.id}/${Date.now()}.${extension}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("profile-pictures")
+      .upload(filePath, file, { upsert: true, cacheControl: "3600" });
+
+    if (uploadError) {
+      setUploadingAvatar(false);
+      setError(uploadError.message);
+      return;
+    }
+
+    const { data } = supabase.storage.from("profile-pictures").getPublicUrl(filePath);
+    setAvatarUrl(data.publicUrl);
+    setUploadingAvatar(false);
+    setMessage("Profile image uploaded. Save changes to persist it in profile metadata.");
+  };
+
+  const handleAvatarInput = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    await uploadAvatar(file);
+  };
+
   if (!open) {
     return null;
   }
@@ -150,12 +187,44 @@ export const ProfilePanel = ({ session, open, onClose }: ProfilePanelProps) => {
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <label className="sm:col-span-2">
-                  <span className="mb-2 block text-sm font-medium text-carbon-100/80">Avatar URL</span>
+                  <span className="mb-2 block text-sm font-medium text-carbon-100/80">Profile Picture</span>
+                  <div
+                    onDragEnter={(event) => {
+                      event.preventDefault();
+                      setDragActive(true);
+                    }}
+                    onDragOver={(event) => {
+                      event.preventDefault();
+                      setDragActive(true);
+                    }}
+                    onDragLeave={(event) => {
+                      event.preventDefault();
+                      setDragActive(false);
+                    }}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      setDragActive(false);
+                      const file = event.dataTransfer.files?.[0];
+                      if (file) {
+                        void uploadAvatar(file);
+                      }
+                    }}
+                    className={`rounded-2xl border-2 border-dashed px-4 py-6 text-sm text-center transition ${
+                      dragActive ? "border-white/50 bg-white/10" : "border-white/20 bg-white/5"
+                    }`}
+                  >
+                    <p className="text-carbon-100/80">Drop image here or choose a file</p>
+                    <p className="mt-1 text-xs text-carbon-200/60">PNG, JPG, WEBP supported</p>
+                    <label className="mt-3 inline-flex cursor-pointer rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium text-white hover:bg-white/15">
+                      {uploadingAvatar ? "Uploading..." : "Choose Image"}
+                      <input type="file" accept="image/*" className="hidden" onChange={(event) => void handleAvatarInput(event)} />
+                    </label>
+                  </div>
                   <input
                     value={avatarUrl}
                     onChange={(event) => setAvatarUrl(event.target.value)}
-                    placeholder="https://.../avatar.png"
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-carbon-100/35 focus:border-white/25"
+                    placeholder="Or paste image URL directly"
+                    className="mt-3 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-carbon-100/35 focus:border-white/25"
                   />
                 </label>
                 <Field label="Full name" value={fullName} onChange={setFullName} placeholder="Your name" />

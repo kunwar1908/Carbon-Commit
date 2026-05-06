@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ path: new URL("../../.env", import.meta.url), override: true });
 const requiredEnv = ["DATABASE_URL"];
 for (const key of requiredEnv) {
     if (!process.env[key]) {

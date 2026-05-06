@@ -14,10 +14,17 @@ import {
 import { api } from "../lib/api";
 import { ProfilePanel } from "./ProfilePanel";
 import { ProjectInsights } from "./ProjectInsights";
+import { AuditViewer } from "./AuditViewer";
+import { NotificationInbox } from "./NotificationInbox";
+import { ImportModal } from "./ImportModal";
+import { KpiGrid } from "./KpiGrid";
+import { FootprintChart } from "./FootprintChart";
+import { ExportPanel } from "./ExportPanel";
 import type {
   ActivityLogResponse,
   DepartmentAnalytics,
   LeaderboardEntry,
+  RecentActivityLog,
   ReferenceData,
 } from "../types";
 
@@ -106,11 +113,14 @@ type DashboardProps = {
 
 export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
   const [profileOpen, setProfileOpen] = useState(false);
-  const [notificationsCollapsed, setNotificationsCollapsed] = useState(false);
+  const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [activeOperationsTab, setActiveOperationsTab] = useState<"kpi" | "audit" | "notifications" | "footprint" | "export" | "import">("kpi");
   const [dismissedNotificationIds, setDismissedNotificationIds] = useState<string[]>([]);
   const [referenceData, setReferenceData] = useState<ReferenceData>({ departments: [], activities: [] });
   const [analytics, setAnalytics] = useState<DepartmentAnalytics[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [recentLogs, setRecentLogs] = useState<RecentActivityLog[]>([]);
   const [selectedDeptId, setSelectedDeptId] = useState<number | "">("");
   const [selectedActivityType, setSelectedActivityType] = useState<string>("");
   const [units, setUnits] = useState<string>("");
@@ -130,10 +140,11 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
 
     const loadData = async () => {
       try {
-        const [refs, analyticsData, leaderboardData] = await Promise.all([
+        const [refs, analyticsData, leaderboardData, recentLogsData] = await Promise.all([
           api.getReferenceData(session.access_token),
           api.getAnalytics(session.access_token),
           api.getLeaderboard(session.access_token),
+          api.getRecentLogs(session.access_token),
         ]);
 
         if (!active) return;
@@ -141,6 +152,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
         setReferenceData(refs);
         setAnalytics(analyticsData);
         setLeaderboard(leaderboardData);
+        setRecentLogs(recentLogsData);
 
         if (refs.departments.length > 0) {
           setSelectedDeptId((current) => (current === "" ? refs.departments[0]!.id : current));
@@ -221,15 +233,17 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
   );
 
   const refreshData = async () => {
-    const [analyticsData, leaderboardData, refs] = await Promise.all([
+    const [analyticsData, leaderboardData, refs, logs] = await Promise.all([
       api.getAnalytics(session.access_token),
       api.getLeaderboard(session.access_token),
       api.getReferenceData(session.access_token),
+      api.getRecentLogs(session.access_token),
     ]);
 
     setAnalytics(analyticsData);
     setLeaderboard(leaderboardData);
     setReferenceData(refs);
+    setRecentLogs(logs);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -304,6 +318,13 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
           <div className="mt-6 flex flex-wrap justify-end gap-3">
             <button
               type="button"
+              onClick={() => setNotificationPanelOpen((current) => !current)}
+              className="rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+            >
+              Notifications ({visibleNotifications.length})
+            </button>
+            <button
+              type="button"
               onClick={() => setProfileOpen(true)}
               className="rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
             >
@@ -323,34 +344,27 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
           <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 shadow-sm">{error}</div>
         ) : null}
 
-        <section className="rounded-[2rem] border border-carbon-100 bg-white p-5 shadow-[0_24px_80px_rgba(12,23,21,0.08)] ring-1 ring-black/5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-carbon-900">Notification Center</h2>
-              <p className="text-sm text-carbon-500">Collapse this bar or dismiss notices one by one when you have already handled them.</p>
+        {notificationPanelOpen ? (
+          <section className="rounded-[2rem] border border-carbon-100 bg-white p-5 shadow-[0_24px_80px_rgba(12,23,21,0.08)] ring-1 ring-black/5">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-carbon-900">Notification Center</h2>
+                <p className="text-sm text-carbon-500">Quick alerts from your latest submissions and department quotas.</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="rounded-full bg-carbon-100 px-3 py-1 text-xs font-medium text-carbon-700">{visibleNotifications.length} visible</span>
+                {visibleNotifications.length > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => setDismissedNotificationIds(notificationFeed.map((item) => item.id))}
+                    className="rounded-2xl border border-carbon-200 bg-white px-4 py-2 text-sm font-medium text-carbon-800 transition hover:bg-carbon-50"
+                  >
+                    Dismiss all
+                  </button>
+                ) : null}
+              </div>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="rounded-full bg-carbon-100 px-3 py-1 text-xs font-medium text-carbon-700">{visibleNotifications.length} visible</span>
-              <button
-                type="button"
-                onClick={() => setNotificationsCollapsed((current) => !current)}
-                className="rounded-2xl border border-carbon-200 bg-white px-4 py-2 text-sm font-medium text-carbon-800 transition hover:bg-carbon-50"
-              >
-                {notificationsCollapsed ? "Show notifications" : "Collapse panel"}
-              </button>
-              {visibleNotifications.length > 0 ? (
-                <button
-                  type="button"
-                  onClick={() => setDismissedNotificationIds(notificationFeed.map((item) => item.id))}
-                  className="rounded-2xl border border-carbon-200 bg-white px-4 py-2 text-sm font-medium text-carbon-800 transition hover:bg-carbon-50"
-                >
-                  Dismiss all
-                </button>
-              ) : null}
-            </div>
-          </div>
 
-          {!notificationsCollapsed ? (
             <div className="mt-5 space-y-3">
               {visibleNotifications.length > 0 ? (
                 visibleNotifications.map((item) => {
@@ -386,12 +400,8 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                 </div>
               )}
             </div>
-          ) : (
-            <div className="mt-5 rounded-2xl border border-carbon-100 bg-carbon-50 px-4 py-3 text-sm text-carbon-600">
-              Notifications are collapsed. Expand the panel to review recent submissions and quota alerts.
-            </div>
-          )}
-        </section>
+          </section>
+        ) : null}
 
         <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
           <section className="rounded-[2rem] border border-carbon-100 bg-white p-6 shadow-[0_24px_80px_rgba(12,23,21,0.08)] ring-1 ring-black/5">
@@ -478,6 +488,38 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                 {submission.exceedsBaseline ? <p className="mt-1 font-medium">Baseline exceeded. Management alert should be raised.</p> : null}
               </div>
             ) : null}
+
+            <div className="mt-6 rounded-2xl border border-carbon-100 bg-carbon-50/60 p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-carbon-900">Recent Insertions & Emissions</h3>
+                <button
+                  type="button"
+                  onClick={() => void refreshData()}
+                  className="rounded-full border border-carbon-200 bg-white px-3 py-1 text-xs font-medium text-carbon-700 transition hover:bg-carbon-50"
+                >
+                  Refresh
+                </button>
+              </div>
+              {recentLogs.length === 0 ? (
+                <p className="text-sm text-carbon-600">No recent activity logs yet.</p>
+              ) : (
+                <div className="space-y-2">
+                  {recentLogs.map((log) => (
+                    <div key={log.id} className="rounded-xl border border-carbon-100 bg-white px-3 py-2 text-sm">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="font-medium text-carbon-900">
+                          {log.deptName} · {log.activityType}
+                        </p>
+                        <p className="text-xs text-carbon-500">{new Date(log.timestamp).toLocaleString()}</p>
+                      </div>
+                      <p className="mt-1 text-carbon-700">
+                        Units: {log.units.toFixed(2)} · Emissions: {log.co2Result.toFixed(2)} kg CO₂
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </section>
 
           <section className="rounded-[2rem] border border-carbon-100 bg-white p-6 shadow-[0_24px_80px_rgba(12,23,21,0.08)] ring-1 ring-black/5">
@@ -564,9 +606,69 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
         </section>
 
         <ProjectInsights />
+
+        {/* Operations Console */}
+        <section className="rounded-[2rem] border border-carbon-100 bg-white p-6 shadow-[0_24px_80px_rgba(12,23,21,0.08)] ring-1 ring-black/5">
+          <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-carbon-900">Operations Console</h2>
+              <p className="text-sm text-carbon-500">Audit logs, notifications, KPIs, exports, and more.</p>
+            </div>
+            <button
+              onClick={() => setImportModalOpen(true)}
+              className="rounded-2xl bg-green-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-green-700"
+            >
+              + Import CSV
+            </button>
+          </div>
+
+          {/* Tab Navigation */}
+          <div className="mb-6 flex flex-wrap gap-2 border-b border-carbon-100 pb-4">
+            {["kpi", "audit", "notifications", "footprint", "export", "import"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveOperationsTab(tab as typeof activeOperationsTab)}
+                className={`px-4 py-2 rounded-lg font-medium transition ${
+                  activeOperationsTab === tab
+                    ? "bg-carbon-900 text-white"
+                    : "bg-carbon-50 text-carbon-700 hover:bg-carbon-100"
+                }`}
+              >
+                {tab === "kpi" && "KPIs"}
+                {tab === "audit" && "Audit"}
+                {tab === "notifications" && "Notifications"}
+                {tab === "footprint" && "Footprints"}
+                {tab === "export" && "Export"}
+                {tab === "import" && "Import"}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab Content */}
+          <div className="space-y-6">
+            {activeOperationsTab === "kpi" && <KpiGrid accessToken={session.access_token} />}
+            {activeOperationsTab === "audit" && <AuditViewer accessToken={session.access_token} />}
+            {activeOperationsTab === "notifications" && <NotificationInbox accessToken={session.access_token} />}
+            {activeOperationsTab === "footprint" && <FootprintChart accessToken={session.access_token} />}
+            {activeOperationsTab === "export" && <ExportPanel accessToken={session.access_token} />}
+            {activeOperationsTab === "import" && (
+              <div className="text-center py-8 text-gray-600">
+                Click "Import CSV" button above to upload activity logs
+              </div>
+            )}
+          </div>
+        </section>
       </section>
 
-      <ProfilePanel session={session} open={profileOpen} onClose={() => setProfileOpen(false)} />
+      <ImportModal
+        accessToken={session.access_token}
+        isOpen={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        onSuccess={() => {
+          setImportModalOpen(false);
+          refreshData();
+        }}
+      />
     </main>
   );
 };

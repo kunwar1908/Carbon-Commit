@@ -159,18 +159,24 @@ export const recordAuditLog = async (input: {
   ipAddress?: string | null;
   userAgent?: string | null;
 }) => {
-  await prisma.auditLog.create({
-    data: {
-      userId: input.userId ?? null,
-      action: input.action,
-      entityType: input.entityType,
-      entityId: input.entityId,
-      oldValues: input.oldValues ?? undefined,
-      newValues: input.newValues ?? undefined,
-      ipAddress: input.ipAddress ?? null,
-      userAgent: input.userAgent ?? null,
-    },
-  });
+  const data: Prisma.AuditLogUncheckedCreateInput = {
+    userId: input.userId ?? null,
+    action: input.action,
+    entityType: input.entityType,
+    entityId: input.entityId,
+    ipAddress: input.ipAddress ?? null,
+    userAgent: input.userAgent ?? null,
+  };
+
+  // Only include optional fields if they're explicitly provided
+  if (input.oldValues !== undefined) {
+    (data as Record<string, unknown>).oldValues = input.oldValues;
+  }
+  if (input.newValues !== undefined) {
+    (data as Record<string, unknown>).newValues = input.newValues;
+  }
+
+  await prisma.auditLog.create({ data });
 };
 
 export const getDepartmentNotificationRecipients = async (deptId: number, actorId?: string) => {
@@ -205,26 +211,36 @@ export const createNotifications = async (
     return;
   }
 
-  await prisma.notification.createMany({
-    data: uniqueRecipientIds.map((userId) => ({
+  const notificationData: Prisma.NotificationCreateManyInput[] = uniqueRecipientIds.map((userId) => {
+    const data: Prisma.NotificationUncheckedCreateInput = {
       userId,
       title: input.title,
       message: input.message,
       type: input.type,
-      relatedData: input.relatedData ?? undefined,
-    })),
+    };
+
+    // Only include relatedData if explicitly provided
+    if (input.relatedData !== undefined) {
+      (data as Record<string, unknown>).relatedData = input.relatedData;
+    }
+
+    return data;
   });
+
+  await prisma.notification.createMany({ data: notificationData });
 };
 
 export const listAuditLogs = async ({
   profile,
   entityType,
+  entityId,
   from,
   to,
   limit = 25,
 }: {
   profile: CurrentUserProfile;
   entityType?: string;
+  entityId?: string;
   from?: Date;
   to?: Date;
   limit?: number;
@@ -232,6 +248,7 @@ export const listAuditLogs = async ({
   const where: Prisma.AuditLogWhereInput = {
     ...(profile.role === "ADMIN" ? {} : { userId: profile.id }),
     ...(entityType ? { entityType } : {}),
+    ...(entityId ? { entityId } : {}),
     ...(from || to
       ? {
           timestamp: {
@@ -266,9 +283,9 @@ export const listAuditLogs = async ({
   }));
 };
 
-export const listNotifications = async (profile: CurrentUserProfile) => {
+export const listNotifications = async (profile: CurrentUserProfile, isRead?: boolean) => {
   const notifications = await prisma.notification.findMany({
-    where: { userId: profile.id },
+    where: { userId: profile.id, ...(isRead === undefined ? {} : { isRead }) },
     orderBy: { createdAt: "desc" },
   });
 

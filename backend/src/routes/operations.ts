@@ -24,9 +24,19 @@ import {
 
 const auditQuerySchema = z.object({
   entityType: z.string().trim().optional(),
+  entityId: z.string().trim().optional(),
   from: z.string().trim().optional(),
   to: z.string().trim().optional(),
   limit: z.coerce.number().int().positive().max(100).optional(),
+});
+
+const notificationQuerySchema = z.object({
+  isRead: z
+    .string()
+    .trim()
+    .transform((value) => value.toLowerCase())
+    .refine((value) => value === "true" || value === "false")
+    .optional(),
 });
 
 const importSchema = z.object({
@@ -87,13 +97,28 @@ operationsRouter.get("/audit-logs", async (req, res, next) => {
 
     const query = auditQuerySchema.parse(req.query);
     const profile = await getCurrentUserProfile(req.user.id, req.user.email);
-    const data = await listAuditLogs({
+    
+    const auditFilters: Parameters<typeof listAuditLogs>[0] = {
       profile,
-      entityType: query.entityType,
-      from: query.from ? new Date(query.from) : undefined,
-      to: query.to ? new Date(query.to) : undefined,
-      limit: query.limit,
-    });
+    };
+
+    if (query.entityType) {
+      auditFilters.entityType = query.entityType;
+    }
+    if (query.entityId) {
+      auditFilters.entityId = query.entityId;
+    }
+    if (query.from) {
+      auditFilters.from = new Date(query.from);
+    }
+    if (query.to) {
+      auditFilters.to = new Date(query.to);
+    }
+    if (query.limit) {
+      auditFilters.limit = query.limit;
+    }
+
+    const data = await listAuditLogs(auditFilters);
 
     res.json({ data });
   } catch (error) {
@@ -109,7 +134,9 @@ operationsRouter.get("/notifications", async (req, res, next) => {
     }
 
     const profile = await getCurrentUserProfile(req.user.id, req.user.email);
-    const data = await listNotifications(profile);
+    const query = notificationQuerySchema.parse(req.query);
+    const isRead = query.isRead === undefined ? undefined : query.isRead === "true";
+    const data = await listNotifications(profile, isRead);
 
     res.json({ data });
   } catch (error) {
@@ -214,14 +241,22 @@ operationsRouter.post("/imports/:kind", async (req, res, next) => {
     let imported = 0;
 
     for (const row of activityRows) {
-      await createActivityLog({
+      const activityInput: Parameters<typeof createActivityLog>[0] = {
         userId: row.userId,
         deptId: row.deptId,
         activityType: row.activityType,
         units: row.units,
-        notes: row.notes ?? undefined,
-        timestamp: row.timestamp,
-      });
+      };
+
+      // Only include optional fields if they exist
+      if (row.notes) {
+        activityInput.notes = row.notes;
+      }
+      if (row.timestamp) {
+        activityInput.timestamp = row.timestamp;
+      }
+
+      await createActivityLog(activityInput);
       imported += 1;
     }
 
