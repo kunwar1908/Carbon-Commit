@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { api } from "../lib/api";
 import { ProfilePanel } from "./ProfilePanel";
+import { ProjectInsights } from "./ProjectInsights";
 import type {
   ActivityLogResponse,
   DepartmentAnalytics,
@@ -29,6 +30,70 @@ const activityFallback = [
 
 const chartPalette = ["#45725f", "#e99821", "#b8d3c3", "#244036"];
 
+const dataFlowSteps = [
+  {
+    title: "Dashboard form",
+    detail: "The user selects a department, an activity type, and the number of units to record.",
+  },
+  {
+    title: "Client validation",
+    detail: "The frontend blocks missing fields and rejects zero or negative unit values before submit.",
+  },
+  {
+    title: "Authenticated request",
+    detail: "The browser posts the payload to the backend with the Supabase access token attached.",
+  },
+  {
+    title: "Bearer token check",
+    detail: "`requireAuth` verifies the Supabase JWT and resolves the signed-in user.",
+  },
+  {
+    title: "Profile sync",
+    detail: "The activity service upserts a matching `user_profiles` row for that auth UUID.",
+  },
+  {
+    title: "Prisma insert",
+    detail: "The backend writes the row into `activity_logs` together with the computed CO2e value.",
+  },
+  {
+    title: "Database automation",
+    detail: "Triggers and functions refresh the analytics cache and keep audit data aligned.",
+  },
+  {
+    title: "Dashboard refresh",
+    detail: "The UI reloads analytics, leaderboard data, and shows the saved log immediately.",
+  },
+] as const;
+
+type NotificationTone = "critical" | "warning" | "success" | "info";
+
+type NotificationItem = {
+  id: string;
+  tone: NotificationTone;
+  title: string;
+  detail: string;
+  meta: string;
+};
+
+const notificationStyles: Record<NotificationTone, { wrapper: string; badge: string }> = {
+  critical: {
+    wrapper: "border-amber-200 bg-amber-50 text-amber-950",
+    badge: "bg-amber-400/15 text-amber-900",
+  },
+  warning: {
+    wrapper: "border-carbon-100 bg-carbon-50 text-carbon-800",
+    badge: "bg-carbon-100 text-carbon-700",
+  },
+  success: {
+    wrapper: "border-emerald-200 bg-emerald-50 text-carbon-800",
+    badge: "bg-emerald-500/10 text-carbon-700",
+  },
+  info: {
+    wrapper: "border-carbon-100 bg-white text-carbon-800",
+    badge: "bg-carbon-900 text-white",
+  },
+};
+
 const getMetadataValue = (metadata: Record<string, unknown> | undefined, key: string) => {
   const value = metadata?.[key];
   return typeof value === "string" ? value : "";
@@ -41,6 +106,8 @@ type DashboardProps = {
 
 export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
   const [profileOpen, setProfileOpen] = useState(false);
+  const [notificationsCollapsed, setNotificationsCollapsed] = useState(false);
+  const [dismissedNotificationIds, setDismissedNotificationIds] = useState<string[]>([]);
   const [referenceData, setReferenceData] = useState<ReferenceData>({ departments: [], activities: [] });
   const [analytics, setAnalytics] = useState<DepartmentAnalytics[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -108,6 +175,51 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
     "Baseline Quota": entry.baseline,
   }));
 
+  const trendChartHeight = Math.max(560, chartData.length * 58);
+
+  const notificationFeed = useMemo<NotificationItem[]>(() => {
+    const feed: NotificationItem[] = [
+      {
+        id: "pipeline-ready",
+        tone: "info",
+        title: "Realtime analytics pipeline ready",
+        detail: "A successful submit flows from the browser to Prisma, then refreshes analytics and leaderboard data.",
+        meta: `${referenceData.departments.length || analytics.length} departments tracked`,
+      },
+    ];
+
+    if (submission) {
+      feed.unshift({
+        id: `submission-${submission.deptId}-${submission.activityType}`,
+        tone: submission.exceedsBaseline ? "critical" : "success",
+        title: submission.exceedsBaseline
+          ? `${submission.deptName} crossed the quota line`
+          : `${submission.deptName} recorded successfully`,
+        detail: `CO2e ${submission.co2Result.toFixed(2)} from ${submission.activityType} (${submission.units.toFixed(2)} units).`,
+        meta: submission.exceedsBaseline
+          ? `Over by ${Math.abs(submission.totalEmissions - submission.baseline).toFixed(2)}`
+          : `Under by ${(submission.baseline - submission.totalEmissions).toFixed(2)}`,
+      });
+    }
+
+    for (const alert of alerts) {
+      feed.push({
+        id: `alert-${alert.deptId}`,
+        tone: "critical",
+        title: `${alert.deptName} needs review`,
+        detail: `Current ${alert.totalEmissions.toFixed(2)} vs baseline ${alert.baseline.toFixed(2)}.`,
+        meta: `Over by ${alert.variance.toFixed(2)}`,
+      });
+    }
+
+    return feed.slice(0, 5);
+  }, [alerts, analytics.length, referenceData.departments.length, submission]);
+
+  const visibleNotifications = useMemo(
+    () => notificationFeed.filter((item) => !dismissedNotificationIds.includes(item.id)),
+    [dismissedNotificationIds, notificationFeed],
+  );
+
   const refreshData = async () => {
     const [analyticsData, leaderboardData, refs] = await Promise.all([
       api.getAnalytics(session.access_token),
@@ -168,20 +280,22 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(69,114,95,0.38),_transparent_38%),linear-gradient(180deg,#0c1715_0%,#13211d_48%,#f3f7f4_48%,#f3f7f4_100%)] text-carbon-900">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(69,114,95,0.34),_transparent_34%),linear-gradient(180deg,#07100f_0%,#11201c_38%,#f3f7f4_38%,#f7faf8_100%)] text-carbon-900">
       <section className="mx-auto flex min-h-screen max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
-        <header className="overflow-hidden rounded-[2rem] border border-white/10 bg-carbon-900/90 p-6 text-white shadow-glow backdrop-blur-xl sm:p-8">
+        <header className="overflow-hidden rounded-[2.25rem] border border-white/10 bg-carbon-900/88 p-6 text-white shadow-glow backdrop-blur-xl sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl space-y-4">
-              <p className="text-xs uppercase tracking-[0.35em] text-carbon-200/80">TIET Sustainability Ops</p>
-              <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">Carbon Commit Dashboard</h1>
-              <p className="max-w-2xl text-sm leading-6 text-carbon-100/80 sm:text-base">
+              <div className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.32em] text-carbon-100/75">
+                TIET Sustainability Ops
+              </div>
+              <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">Carbon Commit Dashboard</h1>
+              <p className="max-w-2xl text-sm leading-6 text-carbon-100/82 sm:text-base">
                 Monitor department emissions, compare them against baseline quotas, and surface quota breaches in real time.
               </p>
               <p className="text-xs text-carbon-200/70">Signed in as {session.user.email ?? session.user.id}</p>
               {profileSummary ? <p className="text-xs text-carbon-200/60">{profileSummary}</p> : null}
             </div>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[420px]">
               <StatCard label="Departments" value={referenceData.departments.length || analytics.length} />
               <StatCard label="Alerts" value={alerts.length} emphasis />
               <StatCard label="Leaderboard" value={leaderboard.length} />
@@ -209,8 +323,78 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
           <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 shadow-sm">{error}</div>
         ) : null}
 
+        <section className="rounded-[2rem] border border-carbon-100 bg-white p-5 shadow-[0_24px_80px_rgba(12,23,21,0.08)] ring-1 ring-black/5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-carbon-900">Notification Center</h2>
+              <p className="text-sm text-carbon-500">Collapse this bar or dismiss notices one by one when you have already handled them.</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="rounded-full bg-carbon-100 px-3 py-1 text-xs font-medium text-carbon-700">{visibleNotifications.length} visible</span>
+              <button
+                type="button"
+                onClick={() => setNotificationsCollapsed((current) => !current)}
+                className="rounded-2xl border border-carbon-200 bg-white px-4 py-2 text-sm font-medium text-carbon-800 transition hover:bg-carbon-50"
+              >
+                {notificationsCollapsed ? "Show notifications" : "Collapse panel"}
+              </button>
+              {visibleNotifications.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setDismissedNotificationIds(notificationFeed.map((item) => item.id))}
+                  className="rounded-2xl border border-carbon-200 bg-white px-4 py-2 text-sm font-medium text-carbon-800 transition hover:bg-carbon-50"
+                >
+                  Dismiss all
+                </button>
+              ) : null}
+            </div>
+          </div>
+
+          {!notificationsCollapsed ? (
+            <div className="mt-5 space-y-3">
+              {visibleNotifications.length > 0 ? (
+                visibleNotifications.map((item) => {
+                  const style = notificationStyles[item.tone];
+
+                  return (
+                    <article key={item.id} className={`rounded-2xl border px-4 py-4 text-sm ${style.wrapper}`}>
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="space-y-1">
+                          <div className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] ${style.badge}`}>
+                            {item.tone}
+                          </div>
+                          <p className="text-base font-semibold">{item.title}</p>
+                          <p className="leading-6 text-carbon-700">{item.detail}</p>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <p className="text-xs uppercase tracking-[0.28em] text-carbon-500">{item.meta}</p>
+                          <button
+                            type="button"
+                            onClick={() => setDismissedNotificationIds((current) => [...current, item.id])}
+                            className="rounded-full border border-carbon-200 bg-white px-3 py-1 text-xs font-medium text-carbon-700 transition hover:bg-carbon-50"
+                          >
+                            Dismiss
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })
+              ) : (
+                <div className="rounded-2xl border border-carbon-100 bg-carbon-50 px-4 py-3 text-sm text-carbon-600">
+                  No visible notifications right now.
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="mt-5 rounded-2xl border border-carbon-100 bg-carbon-50 px-4 py-3 text-sm text-carbon-600">
+              Notifications are collapsed. Expand the panel to review recent submissions and quota alerts.
+            </div>
+          )}
+        </section>
+
         <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-          <section className="rounded-[2rem] border border-carbon-100 bg-white p-6 shadow-[0_24px_80px_rgba(12,23,21,0.08)]">
+          <section className="rounded-[2rem] border border-carbon-100 bg-white p-6 shadow-[0_24px_80px_rgba(12,23,21,0.08)] ring-1 ring-black/5">
             <div className="mb-5 flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-semibold text-carbon-900">Data Entry</h2>
@@ -296,55 +480,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             ) : null}
           </section>
 
-          <section className="rounded-[2rem] border border-carbon-100 bg-white p-6 shadow-[0_24px_80px_rgba(12,23,21,0.08)]">
-            <div className="mb-5">
-              <h2 className="text-xl font-semibold text-carbon-900">Emission Trend</h2>
-              <p className="text-sm text-carbon-500">Current emissions compared with each department&apos;s baseline quota.</p>
-            </div>
-
-            <div className="h-[360px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
-                  <CartesianGrid strokeDasharray="4 4" stroke="#dde6df" />
-                  <XAxis dataKey="name" tickLine={false} axisLine={false} />
-                  <YAxis tickLine={false} axisLine={false} />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="Current Emissions" radius={[10, 10, 0, 0]}>
-                    {chartData.map((_entry, index) => (
-                      <Cell key={index} fill={chartPalette[index % chartPalette.length]} />
-                    ))}
-                  </Bar>
-                  <Bar dataKey="Baseline Quota" fill="#c7d3cb" radius={[10, 10, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </section>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <section className="rounded-[2rem] border border-carbon-100 bg-white p-6 shadow-[0_24px_80px_rgba(12,23,21,0.08)]">
-            <h2 className="text-xl font-semibold text-carbon-900">Real-Time Alerts</h2>
-            <p className="mb-4 text-sm text-carbon-500">Departments that have crossed their baseline quota are highlighted here.</p>
-            <div className="space-y-3">
-              {alerts.length > 0 ? (
-                alerts.map((entry) => (
-                  <div key={entry.deptId} className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
-                    <p className="font-semibold">{entry.deptName}</p>
-                    <p className="mt-1">
-                      Current: {entry.totalEmissions.toFixed(2)} | Baseline: {entry.baseline.toFixed(2)} | Over by: {entry.variance.toFixed(2)}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <div className="rounded-2xl border border-carbon-100 bg-carbon-50 px-4 py-3 text-sm text-carbon-600">
-                  No departments are above their quota yet.
-                </div>
-              )}
-            </div>
-          </section>
-
-          <section className="rounded-[2rem] border border-carbon-100 bg-white p-6 shadow-[0_24px_80px_rgba(12,23,21,0.08)]">
+          <section className="rounded-[2rem] border border-carbon-100 bg-white p-6 shadow-[0_24px_80px_rgba(12,23,21,0.08)] ring-1 ring-black/5">
             <h2 className="text-xl font-semibold text-carbon-900">Leaderboard</h2>
             <p className="mb-4 text-sm text-carbon-500">Lowest carbon footprint first.</p>
             <div className="overflow-hidden rounded-2xl border border-carbon-100">
@@ -371,6 +507,63 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             </div>
           </section>
         </div>
+
+        <section className="min-w-0 rounded-[2rem] border border-carbon-100 bg-white p-6 shadow-[0_24px_80px_rgba(12,23,21,0.08)] ring-1 ring-black/5">
+          <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-carbon-900">Emission Trend</h2>
+              <p className="text-sm text-carbon-500">Each department is rendered on its own row so the current load and baseline stay readable.</p>
+            </div>
+            <span className="rounded-full bg-carbon-100 px-3 py-1 text-xs font-medium text-carbon-700">Vertical department view</span>
+          </div>
+
+          <div className="overflow-x-auto rounded-[1.75rem] border border-carbon-100 bg-carbon-50/70 p-4">
+            <div className="w-full" style={{ minWidth: "860px", height: `${trendChartHeight}px` }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} layout="vertical" margin={{ top: 10, right: 24, left: 24, bottom: 10 }} barCategoryGap={12}>
+                  <CartesianGrid strokeDasharray="4 4" stroke="#dde6df" />
+                  <XAxis type="number" tickLine={false} axisLine={false} />
+                  <YAxis type="category" dataKey="name" width={190} tickLine={false} axisLine={false} interval={0} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="Baseline Quota" fill="#c7d3cb" radius={[0, 10, 10, 0]} barSize={18} />
+                  <Bar dataKey="Current Emissions" radius={[0, 10, 10, 0]} barSize={18}>
+                    {chartData.map((_entry, index) => (
+                      <Cell key={index} fill={chartPalette[index % chartPalette.length] ?? chartPalette[0]!} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-[2rem] border border-carbon-100 bg-white p-6 shadow-[0_24px_80px_rgba(12,23,21,0.08)] ring-1 ring-black/5">
+          <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-carbon-900">Data Flow Visualization</h2>
+              <p className="text-sm text-carbon-500">This is the exact submit path from the browser form to the refreshed dashboard state.</p>
+            </div>
+            <span className="rounded-full bg-carbon-100 px-3 py-1 text-xs font-medium text-carbon-700">Submit pipeline</span>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {dataFlowSteps.map((step, index) => (
+              <article key={step.title} className="relative rounded-[1.75rem] border border-carbon-100 bg-carbon-50/70 p-4 shadow-sm">
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-carbon-900 text-sm font-semibold text-white">
+                    {index + 1}
+                  </div>
+                  {index < dataFlowSteps.length - 1 ? <span className="text-xs uppercase tracking-[0.28em] text-carbon-500">Flow</span> : null}
+                </div>
+                <h3 className="text-base font-semibold text-carbon-900">{step.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-carbon-600">{step.detail}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <ProjectInsights />
       </section>
 
       <ProfilePanel session={session} open={profileOpen} onClose={() => setProfileOpen(false)} />

@@ -4,6 +4,7 @@ import { requireAuth } from "./middleware/requireAuth.js";
 import { logsRouter } from "./routes/logs.js";
 import { analyticsRouter } from "./routes/analytics.js";
 import { leaderboardRouter } from "./routes/leaderboard.js";
+import { operationsRouter } from "./routes/operations.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 
 export const createApp = () => {
@@ -20,6 +21,7 @@ export const createApp = () => {
   app.use("/logs", logsRouter);
   app.use("/analytics", analyticsRouter);
   app.use("/leaderboard", leaderboardRouter);
+  app.use("/operations", operationsRouter);
 
   app.use(errorHandler);
 

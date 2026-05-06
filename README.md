@@ -55,8 +55,9 @@ Carbon Commit/
 1. The user signs up or signs in with Supabase Auth in the frontend.
 2. The frontend keeps the session and attaches the access token to API requests.
 3. The backend validates the bearer token with Supabase before allowing protected routes.
-4. The backend reads and writes data through Prisma against the Supabase PostgreSQL database.
-5. Analytics and leaderboard data are derived from department baselines and logged emissions.
+4. The activity service synchronizes the authenticated user into `user_profiles` before writing a log.
+5. The backend reads and writes data through Prisma against the Supabase PostgreSQL database.
+6. Analytics, leaderboard data, and notification feed items are derived from department baselines and logged emissions.
 
 ## Core Features
 
@@ -72,6 +73,14 @@ Users can record a department, activity type, and number of units. The backend v
 
 The API exposes department analytics, usage variance, and ranked leaderboard data. The UI renders this with charts and summary cards.
 
+### Notification Panel and Flow View
+
+The dashboard now includes a live notification panel for quota breaches, recent submissions, and sync status. It also shows a step-by-step submit flow visualization so the full path from browser input to database refresh is visible.
+
+### Expanded Trend Chart
+
+The emission trend chart uses a vertical department layout so each department gets its own row and the current-vs-baseline comparison stays readable.
+
 ### Seeded Reference Data
 
 The repository includes a seed script that creates demo departments and emission factors so the dashboard is usable immediately after database sync.
@@ -82,11 +91,15 @@ The images below were captured from the running frontend during development.
 
 ### Overview
 
-![Carbon Commit authenticated dashboard](docs/snapshots/dashboard-live.svg)
+![Carbon Commit authenticated dashboard](docs/snapshots/dashboard-overview.svg)
 
-### Auth Screen
+The current dashboard layout includes a collapsible notification center, a larger emission trend chart, a data flow visualization for the submit pipeline, and a shared row for data entry plus leaderboard.
 
-![Carbon Commit sign in screen](docs/snapshots/auth-live.svg)
+### Activity Log
+
+![Carbon Commit activity log result](docs/snapshots/activity-log.svg)
+
+This snapshot captures the submission success state after the activity is recorded and the dashboard refreshes its totals.
 
 ## Table DFD
 ![Carbon Commit Table Architecture](docs/snapshots/supabase-schema-ssnbnsockfjgsheigkbv.png)
@@ -182,7 +195,7 @@ The repo includes a Prisma config file at [prisma.config.ts](prisma.config.ts) t
 
 ## Database Models
 
-The Prisma schema defines three tables:
+The Prisma schema defines three main tables used by the dashboard flow:
 
 - `DeptMaster`: department names and baseline emission quotas.
 - `EmissionRef`: activity types, factors, and units.
@@ -196,19 +209,14 @@ These map to the following database tables:
 
 ## Seed Data
 
-The seed script inserts demo data for four departments and four emission factors:
+The seed script now inserts a larger Thapar-inspired dataset for a campus-style demo:
 
-- Computer Engineering
-- Mechanical Engineering
-- Electrical Engineering
-- Civil Engineering
+- 15 departments across academic, lab, residential, transport, and operations categories.
+- 8 emission factors covering energy, water, transport, waste, materials, and lab activity.
+- 16 sample user profiles, including department leads and an admin account.
+- 60 demo activity logs to populate analytics, alerts, and the leaderboard.
 
-Seeded activity types:
-
-- Electricity
-- Water
-- Fuel
-- Waste
+Seeded activity types include electricity, water, fuel, waste, paper, LPG, campus shuttle, and lab consumables.
 
 ## Local Development
 
