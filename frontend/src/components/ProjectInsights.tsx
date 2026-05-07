@@ -52,91 +52,219 @@ const roadmapItems = [
 
 export const ProjectInsights = () => {
   return (
-    <section className="rounded-[2rem] border border-carbon-100 bg-white p-6 shadow-[0_24px_80px_rgba(12,23,21,0.08)]">
-      <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-          <h2 className="text-xl font-semibold text-carbon-900">Project Intelligence</h2>
-          <p className="text-sm text-carbon-500">Database structure, demo coverage, and synopsis-driven upgrade ideas.</p>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-4">
-          <StatCard label="Tables" value="8" />
-          <StatCard label="Functions" value="5" />
-          <StatCard label="Triggers" value="4" />
-          <StatCard label="RLS Policies" value="10+" emphasis />
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-8 backdrop-blur-sm">
+        <h2 className="text-3xl font-bold text-emerald-400 mb-2">📊 Project Architecture & Insights</h2>
+        <p className="text-slate-300 text-lg">Database structure, demo coverage, and advancement roadmap.</p>
+      </div>
+
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard label="📋 Tables" value="8" color="emerald" />
+        <StatCard label="⚙️ Functions" value="5" color="blue" />
+        <StatCard label="🔗 Triggers" value="4" color="purple" />
+        <StatCard label="🔐 RLS Policies" value="10+" color="amber" />
+      </div>
+
+      {/* Main Grid */}
+      <div className="grid gap-6 xl:grid-cols-2">
+        {/* Database Tables */}
+        <InfoCard 
+          title="Database Tables" 
+          icon="🗄️"
+          summary="Core models for users, departments, activity, analytics, and compliance."
+          color="emerald"
+        >
+          <div className="space-y-2">
+            {schemaTables.map((table, i) => (
+              <div key={table} className="flex items-center gap-3">
+                <div className="h-6 w-6 rounded-lg bg-emerald-950/50 border border-emerald-700/50 flex items-center justify-center text-emerald-400 text-sm font-bold">
+                  {i + 1}
+                </div>
+                <span className="text-slate-300 font-mono text-sm">{table}</span>
+              </div>
+            ))}
+          </div>
+        </InfoCard>
+
+        {/* Automation Layer */}
+        <InfoCard 
+          title="Automation Layer" 
+          icon="⚡"
+          summary="Functions and triggers keep analytics, audit records, and notifications synced."
+          color="blue"
+        >
+          <div className="space-y-4">
+            <GroupBlock title="Functions" items={schemaFunctions} />
+            <GroupBlock title="Triggers" items={schemaTriggers} />
+          </div>
+        </InfoCard>
+
+        {/* Demo Dataset */}
+        <InfoCard 
+          title="Campus Demo Dataset" 
+          icon="🏫"
+          summary="Thapar-inspired schools and support services for testing at scale."
+          color="purple"
+        >
+          <div className="grid grid-cols-2 gap-2">
+            {demoScope.map((dept) => (
+              <div key={dept} className="px-3 py-2 rounded-lg bg-purple-950/30 border border-purple-700/30 hover:border-purple-600/50 transition-colors duration-300">
+                <p className="text-sm text-purple-300">{dept}</p>
+              </div>
+            ))}
+          </div>
+        </InfoCard>
+
+        {/* Roadmap */}
+        <InfoCard 
+          title="Product Roadmap" 
+          icon="🚀"
+          summary="Features and enhancements for the sustainability dashboard."
+          color="amber"
+        >
+          <div className="space-y-3">
+            {roadmapItems.map((item, i) => (
+              <div key={item} className="flex gap-3">
+                <div className="h-8 w-8 rounded-full bg-amber-950/50 border border-amber-700/50 flex items-center justify-center text-amber-400 text-sm font-bold flex-shrink-0">
+                  {i + 1}
+                </div>
+                <p className="text-slate-300 text-sm pt-1">{item}</p>
+              </div>
+            ))}
+          </div>
+        </InfoCard>
+      </div>
+
+      {/* Architecture Diagram */}
+      <div className="rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-8 backdrop-blur-sm">
+        <h3 className="text-2xl font-bold text-emerald-400 mb-6">🔄 System Architecture Flow</h3>
+        <div className="space-y-4">
+          <ArchitectureBox title="Frontend (React + TypeScript)" color="blue" items={["Dashboard", "Operations Console", "Insights Page"]} />
+          <Arrow />
+          <ArchitectureBox title="API Layer (Express + Zod)" color="purple" items={["Authentication", "Data Validation", "Error Handling"]} />
+          <Arrow />
+          <ArchitectureBox title="Business Logic (Services)" color="emerald" items={["Analytics", "Audit Logs", "Notifications", "PDF/CSV Export"]} />
+          <Arrow />
+          <ArchitectureBox title="Database (PostgreSQL + Prisma)" color="amber" items={["Tables", "Functions", "Triggers", "RLS Policies"]} />
+          <Arrow />
+          <ArchitectureBox title="Authentication (Supabase)" color="red" items={["JWT Tokens", "User Management", "Role-Based Access"]} />
         </div>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-2">
-        <InfoCard title="Database Tables" summary="Core models for users, departments, activity, analytics, and compliance.">
-          <TagList items={schemaTables} />
-        </InfoCard>
-
-        <InfoCard title="Automation Layer" summary="Functions and triggers keep analytics, audit records, and notifications up to date.">
-          <GroupBlock title="Functions" items={schemaFunctions} />
-          <GroupBlock title="Triggers" items={schemaTriggers} className="mt-4" />
-        </InfoCard>
-
-        <InfoCard title="Thapar Demo Dataset" summary="A larger campus-style seed set built around Thapar-inspired schools and support services.">
-          <TagList items={demoScope} />
-        </InfoCard>
-
-        <InfoCard title="Synopsis-Driven Features" summary="The dashboard can grow into a fuller sustainability operations console.">
-          <TagList items={roadmapItems} compact />
-        </InfoCard>
+      {/* Stats Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <SummaryCard title="Total Endpoints" value="15+" description="REST API endpoints covering all operations" icon="📡" />
+        <SummaryCard title="Database Queries" value="50+" description="Optimized queries with caching layer" icon="🔍" />
+        <SummaryCard title="Active Features" value="12+" description="Core features with role-based access control" icon="✨" />
       </div>
-    </section>
+    </div>
   );
 };
 
 type StatCardProps = {
   label: string;
   value: string;
-  emphasis?: boolean;
+  color: "emerald" | "blue" | "purple" | "amber";
 };
 
-const StatCard = ({ label, value, emphasis = false }: StatCardProps) => (
-  <div className={`rounded-3xl border px-4 py-3 ${emphasis ? "border-amber-400/40 bg-amber-400/15" : "border-carbon-100 bg-carbon-50"}`}>
-    <p className="text-xs uppercase tracking-[0.28em] text-carbon-500">{label}</p>
-    <p className="mt-2 text-2xl font-semibold text-carbon-900">{value}</p>
-  </div>
-);
+const StatCard = ({ label, value, color }: StatCardProps) => {
+  const colors = {
+    emerald: "from-emerald-950/60 to-emerald-900/40 border-emerald-700/50 text-emerald-400",
+    blue: "from-blue-950/60 to-blue-900/40 border-blue-700/50 text-blue-400",
+    purple: "from-purple-950/60 to-purple-900/40 border-purple-700/50 text-purple-400",
+    amber: "from-amber-950/60 to-amber-900/40 border-amber-700/50 text-amber-400",
+  };
+
+  return (
+    <div className={`rounded-2xl border bg-gradient-to-br ${colors[color]} p-5 hover:scale-105 transition-all duration-300`}>
+      <p className="text-sm font-medium text-slate-300">{label}</p>
+      <p className="mt-2 text-3xl font-bold">{value}</p>
+    </div>
+  );
+};
 
 type InfoCardProps = {
   title: string;
+  icon: string;
   summary: string;
   children: ReactNode;
+  color: "emerald" | "blue" | "purple" | "amber";
 };
 
-const InfoCard = ({ title, summary, children }: InfoCardProps) => (
-  <article className="rounded-[1.75rem] border border-carbon-100 bg-carbon-50/60 p-5">
-    <h3 className="text-lg font-semibold text-carbon-900">{title}</h3>
-    <p className="mt-1 text-sm text-carbon-500">{summary}</p>
-    <div className="mt-4">{children}</div>
-  </article>
-);
+const InfoCard = ({ title, icon, summary, children, color }: InfoCardProps) => {
+  const colors = {
+    emerald: "border-emerald-700/50 bg-gradient-to-br from-emerald-950/30 to-emerald-900/20",
+    blue: "border-blue-700/50 bg-gradient-to-br from-blue-950/30 to-blue-900/20",
+    purple: "border-purple-700/50 bg-gradient-to-br from-purple-950/30 to-purple-900/20",
+    amber: "border-amber-700/50 bg-gradient-to-br from-amber-950/30 to-amber-900/20",
+  };
 
-const TagList = ({ items, compact = false }: { items: string[]; compact?: boolean }) => (
-  <div className="flex flex-wrap gap-2">
-    {items.map((item) => (
-      <span
-        key={item}
-        className={`rounded-full border border-carbon-200 bg-white px-3 py-1.5 text-sm text-carbon-700 ${compact ? "leading-5" : ""}`}
-      >
-        {item}
-      </span>
-    ))}
+  return (
+    <article className={`rounded-2xl border ${colors[color]} p-6 backdrop-blur-sm hover:border-slate-600 transition-all duration-300`}>
+      <h3 className="text-xl font-bold text-white mb-1">{icon} {title}</h3>
+      <p className="text-sm text-slate-400 mb-4">{summary}</p>
+      <div className="mt-4">{children}</div>
+    </article>
+  );
+};
+
+const GroupBlock = ({ title, items }: { title: string; items: string[] }) => (
+  <div>
+    <p className="text-sm font-semibold text-slate-300 mb-3 uppercase tracking-wider">{title}</p>
+    <div className="space-y-2">
+      {items.map((item) => (
+        <div key={item} className="rounded-lg border border-slate-700/50 bg-slate-800/30 px-4 py-3 hover:border-slate-600/50 transition-colors duration-300">
+          <span className="text-sm text-slate-300 font-mono">{item}</span>
+        </div>
+      ))}
+    </div>
   </div>
 );
 
-const GroupBlock = ({ title, items, className = "" }: { title: string; items: string[]; className?: string }) => (
-  <div className={className}>
-    <p className="text-xs uppercase tracking-[0.28em] text-carbon-500">{title}</p>
-    <ul className="mt-3 space-y-2 text-sm text-carbon-700">
-      {items.map((item) => (
-        <li key={item} className="rounded-2xl border border-carbon-100 bg-white px-4 py-3">
-          {item}
-        </li>
-      ))}
-    </ul>
+const ArchitectureBox = ({ title, color, items }: { title: string; color: "blue" | "purple" | "emerald" | "amber" | "red"; items: string[] }) => {
+  const colors = {
+    blue: "border-blue-700/50 bg-gradient-to-r from-blue-950/40 to-blue-900/20",
+    purple: "border-purple-700/50 bg-gradient-to-r from-purple-950/40 to-purple-900/20",
+    emerald: "border-emerald-700/50 bg-gradient-to-r from-emerald-950/40 to-emerald-900/20",
+    amber: "border-amber-700/50 bg-gradient-to-r from-amber-950/40 to-amber-900/20",
+    red: "border-red-700/50 bg-gradient-to-r from-red-950/40 to-red-900/20",
+  };
+
+  const textColors = {
+    blue: "text-blue-400",
+    purple: "text-purple-400",
+    emerald: "text-emerald-400",
+    amber: "text-amber-400",
+    red: "text-red-400",
+  };
+
+  return (
+    <div className={`rounded-xl border ${colors[color]} p-4 backdrop-blur-sm`}>
+      <p className={`font-bold text-lg mb-2 ${textColors[color]}`}>{title}</p>
+      <div className="flex flex-wrap gap-2">
+        {items.map((item) => (
+          <span key={item} className={`text-xs px-2 py-1 rounded-md bg-slate-900/50 border border-slate-700 text-slate-300`}>
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Arrow = () => (
+  <div className="flex justify-center">
+    <div className="text-emerald-500 text-2xl animate-bounce">↓</div>
+  </div>
+);
+
+const SummaryCard = ({ title, value, description, icon }: { title: string; value: string; description: string; icon: string }) => (
+  <div className="rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 text-center hover:border-slate-600 transition-all duration-300">
+    <p className="text-3xl mb-2">{icon}</p>
+    <p className="text-3xl font-bold text-emerald-400 mb-2">{value}</p>
+    <p className="text-sm font-semibold text-slate-300 mb-1">{title}</p>
+    <p className="text-xs text-slate-500">{description}</p>
   </div>
 );

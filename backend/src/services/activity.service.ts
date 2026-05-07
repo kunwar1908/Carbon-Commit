@@ -183,3 +183,23 @@ export const listReferenceData = async () => {
     })),
   };
 };
+
+export const getRecentLogs = async (limit: number = 10) => {
+  const logs = await prisma.activityLogs.findMany({
+    orderBy: { timestamp: "desc" },
+    take: Math.min(limit, 100),
+    include: {
+      dept: { select: { name: true } },
+    },
+  });
+
+  return logs.map((log) => ({
+    id: log.id,
+    deptId: log.deptId,
+    deptName: log.dept.name,
+    activityType: log.activityId,
+    units: decimalToNumber(log.units),
+    co2Result: decimalToNumber(log.co2Result),
+    timestamp: log.timestamp.toISOString(),
+  }));
+};

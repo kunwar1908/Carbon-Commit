@@ -41,12 +41,12 @@ export const AuditViewer: React.FC<AuditViewerProps> = ({ accessToken }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Audit Log Viewer</h2>
+    <div className="bg-carbon-800/40 rounded-2xl shadow-lg p-6 border border-carbon-700/30 backdrop-blur-sm">
+      <h2 className="text-2xl font-bold text-carbon-50 mb-4">Audit Log Viewer</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div>
-          <label className="block text-sm font-medium text-gray-600 mb-1">Entity Type</label>
+          <label className="block text-sm font-medium text-carbon-200 mb-1">Entity Type</label>
           <input
             type="text"
             placeholder="e.g., activity_log"
@@ -66,21 +66,21 @@ export const AuditViewer: React.FC<AuditViewerProps> = ({ accessToken }) => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-600 mb-1">Start Date</label>
+          <label className="block text-sm font-medium text-carbon-200 mb-1">Start Date</label>
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full px-3 py-2 rounded-lg border border-carbon-600/30 bg-carbon-700/40 text-white focus:outline-none focus:border-carbon-500"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-600 mb-1">End Date</label>
+          <label className="block text-sm font-medium text-carbon-200 mb-1">End Date</label>
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full px-3 py-2 rounded-lg border border-carbon-600/30 bg-carbon-700/40 text-white focus:outline-none focus:border-carbon-500"
           />
         </div>
       </div>

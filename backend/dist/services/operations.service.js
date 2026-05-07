@@ -487,37 +487,153 @@ export const buildPdfReport = async (snapshot) => new Promise((resolve, reject) 
     document.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
     document.on("end", () => resolve(Buffer.concat(chunks)));
     document.on("error", reject);
-    document.fontSize(20).text("Carbon Commit Compliance Snapshot", { underline: true });
+    // ===== HEADER SECTION =====
+    document.fontSize(32).font("Helvetica-Bold").fillColor("#10b981").text("Carbon Commit", { align: "center" });
+    document.fontSize(11).font("Helvetica").fillColor("#2d5a4c").text("Campus Sustainability & Emissions Report", { align: "center" });
+    document.fontSize(9).fillColor("#666").text(`Report Generated: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`, { align: "center" });
+    document.moveDown(0.3);
+    // Decorative line
+    document.fillColor("#10b981");
+    document.moveTo(40, document.y).lineTo(555, document.y).stroke();
     document.moveDown(0.5);
-    document.fontSize(11).text(`Profile: ${snapshot.profile.email} (${snapshot.profile.role})`);
-    document.text(`Department scope: ${snapshot.profile.departmentName ?? "Campus-wide"}`);
-    document.moveDown();
-    document.fontSize(14).text("Role KPIs");
-    document.fontSize(10);
-    for (const kpi of snapshot.roleKpis) {
-        document.text(`- ${kpi.label}: ${kpi.value} | ${kpi.detail}`);
-    }
-    document.moveDown();
-    document.fontSize(14).text("Footprint Highlights");
-    document.fontSize(10);
-    for (const section of [snapshot.footprints.transport, snapshot.footprints.hostel]) {
-        document.text(`- ${section.label}: ${section.totalEmissions.toFixed(2)} / ${section.baseline.toFixed(2)} baseline (variance ${section.variance.toFixed(2)})`);
-        for (const department of section.departments) {
-            document.text(`  • ${department.name}: ${department.totalEmissions.toFixed(2)} / ${department.baseline.toFixed(2)}`);
+    // ===== PROFILE SECTION =====
+    document.fontSize(12).font("Helvetica-Bold").fillColor("#2d5a4c").text("📋 User Profile");
+    document.fontSize(9).font("Helvetica").fillColor("#333");
+    const profileBox = {
+        x: 40,
+        y: document.y,
+        width: 515,
+        height: 65,
+    };
+    document.fillColor("#f0f9f7");
+    document.rect(profileBox.x, profileBox.y, profileBox.width, profileBox.height).fill();
+    document.fillColor("#10b981");
+    document.rect(profileBox.x, profileBox.y, profileBox.width, profileBox.height).stroke();
+    document.fillColor("#333");
+    document.text(`Email: ${snapshot.profile.email}`, 50, profileBox.y + 8);
+    document.text(`Role: ${snapshot.profile.role}  |  Department: ${snapshot.profile.departmentName ?? "Campus-wide"}`, 50, document.y);
+    document.text(`Total Submissions: ${snapshot.auditLogs.length}`, 50, document.y);
+    document.moveDown(4.5);
+    // ===== KPIs SECTION =====
+    document.fontSize(12).font("Helvetica-Bold").fillColor("#2d5a4c").text("📊 Key Performance Indicators");
+    document.moveDown(0.2);
+    // Calculate columns for KPIs (2 per row)
+    const kpisPerRow = 2;
+    const boxWidth = (515 - 10) / kpisPerRow;
+    const boxHeight = 45;
+    for (let i = 0; i < snapshot.roleKpis.length; i += kpisPerRow) {
+        const row = snapshot.roleKpis.slice(i, i + kpisPerRow);
+        row.forEach((kpi, colIndex) => {
+            const boxX = 40 + colIndex * (boxWidth + 10);
+            const boxY = document.y;
+            const bgColor = kpi.tone === "success" ? "#d1fae5" : kpi.tone === "critical" ? "#fee2e2" : kpi.tone === "warning" ? "#fef3c7" : "#f3f4f6";
+            const borderColor = kpi.tone === "success" ? "#10b981" : kpi.tone === "critical" ? "#ef4444" : kpi.tone === "warning" ? "#f59e0b" : "#9ca3af";
+            document.fillColor(bgColor);
+            document.rect(boxX, boxY, boxWidth - 5, boxHeight).fill();
+            document.strokeColor(borderColor);
+            document.lineWidth(1.5);
+            document.rect(boxX, boxY, boxWidth - 5, boxHeight).stroke();
+            document.fillColor("#000");
+            document.fontSize(9).font("Helvetica-Bold").text(kpi.label, boxX + 8, boxY + 5, { width: boxWidth - 16 });
+            document.fontSize(12).font("Helvetica-Bold").fillColor(borderColor).text(kpi.value, boxX + 8, boxY + 18, { width: boxWidth - 16 });
+            document.fontSize(7).font("Helvetica").fillColor("#666").text(kpi.detail, boxX + 8, boxY + 32, { width: boxWidth - 16 });
+        });
+        if (i + kpisPerRow < snapshot.roleKpis.length) {
+            document.moveDown(3.2);
         }
     }
-    document.moveDown();
-    document.fontSize(14).text("Recent Notifications");
-    document.fontSize(10);
-    for (const notification of snapshot.notifications.slice(0, 5)) {
-        document.text(`- ${notification.title} [${notification.type}] ${notification.message}`);
+    document.moveDown(3);
+    // ===== FOOTPRINT SECTION =====
+    document.fontSize(12).font("Helvetica-Bold").fillColor("#2d5a4c").text("🌍 Emissions Footprint Analysis");
+    document.moveDown(0.2);
+    for (const section of [snapshot.footprints.transport, snapshot.footprints.hostel]) {
+        const percentUsed = (section.totalEmissions / section.baseline) * 100;
+        const barWidth = 350;
+        const filledWidth = (percentUsed / 100) * barWidth;
+        const barColor = percentUsed > 100 ? "#ef4444" : percentUsed > 80 ? "#f59e0b" : "#10b981";
+        document.fontSize(10).font("Helvetica-Bold").fillColor("#2d5a4c").text(`${section.label}`);
+        document.fontSize(8).font("Helvetica").fillColor("#666");
+        document.text(`${section.totalEmissions.toFixed(2)} kg CO₂ / ${section.baseline.toFixed(2)} kg baseline (${percentUsed.toFixed(1)}%)`, { indent: 20 });
+        // Progress bar background
+        document.fillColor("#e5e7eb");
+        document.rect(60, document.y, barWidth, 12).fill();
+        // Progress bar filled
+        document.fillColor(barColor);
+        document.rect(60, document.y, Math.min(filledWidth, barWidth), 12).fill();
+        // Percentage text on bar
+        document.fontSize(7).font("Helvetica-Bold").fillColor("#fff");
+        document.text(`${percentUsed.toFixed(1)}%`, 65, document.y + 2, { width: barWidth - 10 });
+        document.moveDown(1.2);
+        // Department breakdown
+        document.fontSize(8).font("Helvetica").fillColor("#555");
+        for (const dept of section.departments.slice(0, 4)) {
+            document.text(`  • ${dept.name}: ${dept.totalEmissions.toFixed(2)} kg`, { indent: 30 });
+        }
+        if (section.departments.length > 4) {
+            document.fontSize(7).fillColor("#999");
+            document.text(`  ... and ${section.departments.length - 4} more departments`, { indent: 30 });
+        }
+        document.moveDown(0.5);
     }
-    document.moveDown();
-    document.fontSize(14).text("Audit Log");
-    document.fontSize(10);
-    for (const entry of snapshot.auditLogs.slice(0, 8)) {
-        document.text(`- ${entry.timestamp}: ${entry.summary}`);
+    document.moveDown(0.3);
+    // ===== NOTIFICATIONS SECTION =====
+    if (snapshot.notifications.length > 0) {
+        document.fontSize(12).font("Helvetica-Bold").fillColor("#2d5a4c").text("🔔 Recent Alerts");
+        document.moveDown(0.2);
+        for (const notif of snapshot.notifications.slice(0, 3)) {
+            const bgColor = notif.type === "ERROR" ? "#fee2e2" : notif.type === "WARNING" ? "#fef3c7" : "#d1fae5";
+            const borderColor = notif.type === "ERROR" ? "#ef4444" : notif.type === "WARNING" ? "#f59e0b" : "#06b6d4";
+            document.fillColor(bgColor);
+            document.rect(40, document.y, 515, 35).fill();
+            document.strokeColor(borderColor);
+            document.lineWidth(1);
+            document.rect(40, document.y, 515, 35).stroke();
+            document.fillColor("#000");
+            document.fontSize(9).font("Helvetica-Bold").text(`[${notif.type}] ${notif.title}`, 50, document.y + 5);
+            document.fontSize(8).font("Helvetica").fillColor("#555").text(notif.message, 50, document.y + 18, { width: 495 });
+            document.moveDown(2.8);
+        }
+        document.moveDown(0.3);
     }
+    // ===== AUDIT TRAIL SECTION =====
+    if (snapshot.auditLogs.length > 0) {
+        document.fontSize(12).font("Helvetica-Bold").fillColor("#2d5a4c").text("📝 Recent Activity Log");
+        document.moveDown(0.2);
+        // Table header
+        document.fillColor("#2d5a4c");
+        document.rect(40, document.y, 515, 16).fill();
+        document.fontSize(8).font("Helvetica-Bold").fillColor("#fff");
+        document.text("Date", 45, document.y + 3);
+        document.text("Action", 110, document.y + 3);
+        document.text("Entity", 200, document.y + 3);
+        document.text("Summary", 300, document.y + 3);
+        document.moveDown(1);
+        // Table rows
+        document.fontSize(7).font("Helvetica").fillColor("#333");
+        for (const entry of snapshot.auditLogs.slice(0, 8)) {
+            const date = new Date(entry.timestamp).toLocaleDateString();
+            if (document.y > 750) {
+                document.addPage();
+            }
+            document.fillColor("#f9fafb");
+            document.rect(40, document.y, 515, 12).fill();
+            document.fillColor("#333");
+            document.text(date, 45, document.y + 1, { width: 60 });
+            document.text(entry.action, 110, document.y + 1, { width: 85 });
+            document.text(entry.entityType.substring(0, 12), 200, document.y + 1, { width: 95 });
+            document.text(entry.summary.substring(0, 40), 300, document.y + 1, { width: 250 });
+            document.moveDown(1);
+        }
+    }
+    // ===== FOOTER =====
+    document.moveDown(1);
+    document.fontSize(8).fillColor("#999");
+    document.strokeColor("#e5e7eb");
+    document.moveTo(40, document.y).lineTo(555, document.y).stroke();
+    document.moveDown(0.3);
+    document.fillColor("#999");
+    document.text("Carbon Commit v1.0 | TIET Sustainability Initiative | Confidential", { align: "center" });
+    document.text(`Page ${document.bufferedPageRange().count}`, { align: "center" });
     document.end();
 });
 const escapeCsvValue = (value) => {

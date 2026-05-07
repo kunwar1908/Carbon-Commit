@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { createActivityLog, getRecentActivityLogs } from "../services/activity.service.js";
+import { createActivityLog, getRecentLogs } from "../services/activity.service.js";
 const logInputSchema = z.object({
     deptId: z.number().int().positive(),
     activityType: z.string().min(1),
@@ -13,8 +13,8 @@ logsRouter.get("/recent", async (req, res, next) => {
             res.status(401).json({ error: "Unauthorized." });
             return;
         }
-        const limit = Number(req.query.limit ?? 8);
-        const data = await getRecentActivityLogs(req.user.id, Number.isFinite(limit) ? limit : 8);
+        const limit = Math.min(Number(req.query.limit ?? 10), 100);
+        const data = await getRecentLogs(limit);
         res.json({ data });
     }
     catch (error) {

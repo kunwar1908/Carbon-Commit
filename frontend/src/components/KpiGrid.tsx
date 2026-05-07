@@ -29,27 +29,27 @@ export const KpiGrid: React.FC<KpiGridProps> = ({ accessToken }) => {
   }, []);
 
   if (loading) {
-    return <div className="text-center py-8 text-gray-500">Loading KPIs...</div>;
+    return <div className="text-center py-8 text-carbon-200">Loading KPIs...</div>;
   }
 
   if (error) {
-    return <div className="p-4 bg-red-100 text-red-800 rounded-lg">{error}</div>;
+    return <div className="p-4 bg-red-900/50 text-red-200 rounded-2xl border border-red-500/40">{error}</div>;
   }
 
   if (kpis.length === 0) {
-    return <div className="text-center py-8 text-gray-500">No KPI data available</div>;
+    return <div className="text-center py-8 text-carbon-200">No KPI data available</div>;
   }
 
   const toneClasses: Record<RoleKpi["tone"], string> = {
-    neutral: "from-slate-50 to-slate-100 border-slate-200 text-slate-800",
-    warning: "from-amber-50 to-amber-100 border-amber-200 text-amber-800",
-    success: "from-emerald-50 to-emerald-100 border-emerald-200 text-emerald-800",
-    critical: "from-red-50 to-red-100 border-red-200 text-red-800",
+    neutral: "from-carbon-700/50 to-carbon-600/30 border-carbon-600/30 text-white",
+    warning: "from-amber-900/40 to-amber-800/20 border-amber-600/30 text-amber-200",
+    success: "from-emerald-900/40 to-emerald-800/20 border-emerald-600/30 text-emerald-200",
+    critical: "from-red-900/40 to-red-800/20 border-red-600/30 text-red-200",
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">
+    <div className="bg-carbon-800/40 rounded-2xl shadow-lg p-6 border border-carbon-700/30 backdrop-blur-sm">
+      <h2 className="text-2xl font-bold text-carbon-50 mb-6">
         Performance KPIs {role ? `(${role})` : ""}
       </h2>
 
@@ -57,7 +57,7 @@ export const KpiGrid: React.FC<KpiGridProps> = ({ accessToken }) => {
         {kpis.map((item) => (
           <div
             key={item.label}
-            className={`bg-gradient-to-br rounded-lg p-6 border ${toneClasses[item.tone]}`}
+            className={`bg-gradient-to-br rounded-2xl p-6 border ${toneClasses[item.tone]}`}
           >
             <p className="text-sm font-medium mb-1">{item.label}</p>
             <p className="text-3xl font-bold">{item.value}</p>

@@ -141,22 +141,21 @@ export const listReferenceData = async () => {
         })),
     };
 };
-export const getRecentActivityLogs = async (userId, limit = 8) => {
-    const rows = await prisma.activityLogs.findMany({
-        where: { userId },
+export const getRecentLogs = async (limit = 10) => {
+    const logs = await prisma.activityLogs.findMany({
         orderBy: { timestamp: "desc" },
-        take: Math.max(1, Math.min(limit, 20)),
+        take: Math.min(limit, 100),
         include: {
             dept: { select: { name: true } },
-            activity: { select: { activityType: true } },
         },
     });
-    return rows.map((row) => ({
-        id: row.id,
-        deptName: row.dept.name,
-        activityType: row.activity.activityType,
-        units: decimalToNumber(row.units),
-        co2Result: decimalToNumber(row.co2Result),
-        timestamp: row.timestamp.toISOString(),
+    return logs.map((log) => ({
+        id: log.id,
+        deptId: log.deptId,
+        deptName: log.dept.name,
+        activityType: log.activityId,
+        units: decimalToNumber(log.units),
+        co2Result: decimalToNumber(log.co2Result),
+        timestamp: log.timestamp.toISOString(),
     }));
 };

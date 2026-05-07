@@ -6,6 +6,7 @@ type ProfilePanelProps = {
   session: Session;
   open: boolean;
   onClose: () => void;
+  onSaveSuccess?: (message: string) => void;
 };
 
 const getMetadataValue = (metadata: Record<string, unknown> | undefined, key: string) => {
@@ -13,7 +14,44 @@ const getMetadataValue = (metadata: Record<string, unknown> | undefined, key: st
   return typeof value === "string" ? value : "";
 };
 
-export const ProfilePanel = ({ session, open, onClose }: ProfilePanelProps) => {
+const departmentOptions = [
+  "Civil Engineering",
+  "Mechanical Engineering",
+  "Electrical Engineering",
+  "Chemical Engineering",
+  "Computer Science",
+  "Electronics Engineering",
+  "Biotechnology",
+  "Architecture",
+  "Administration",
+  "Facilities",
+  "Operations",
+];
+
+const titleOptions = [
+  "Faculty",
+  "Research Scholar",
+  "Teaching Assistant",
+  "Administrator",
+  "Coordinator",
+  "Manager",
+  "Engineer",
+  "Technician",
+  "Intern",
+  "Student",
+];
+
+const organizationOptions = [
+  "TIET",
+  "Campus",
+  "Regional Office",
+  "Central Administration",
+  "Department",
+  "Center",
+  "Laboratory",
+];
+
+export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfilePanelProps) => {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [fullName, setFullName] = useState("");
   const [department, setDepartment] = useState("");
@@ -107,7 +145,9 @@ export const ProfilePanel = ({ session, open, onClose }: ProfilePanelProps) => {
       messages.push("Your password has been updated.");
     }
 
-    setMessage(messages.join(" "));
+    const fullMessage = messages.join(" ");
+    setMessage(fullMessage);
+    onSaveSuccess?.(fullMessage);
     setNewPassword("");
     setConfirmPassword("");
     setSaving(false);
@@ -187,7 +227,7 @@ export const ProfilePanel = ({ session, open, onClose }: ProfilePanelProps) => {
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <label className="sm:col-span-2">
-                  <span className="mb-2 block text-sm font-medium text-carbon-100/80">Profile Picture</span>
+                  <span className="mb-2 block text-sm font-medium text-carbon-50">Profile Picture</span>
                   <div
                     onDragEnter={(event) => {
                       event.preventDefault();
@@ -228,13 +268,64 @@ export const ProfilePanel = ({ session, open, onClose }: ProfilePanelProps) => {
                   />
                 </label>
                 <Field label="Full name" value={fullName} onChange={setFullName} placeholder="Your name" />
-                <Field label="Department" value={department} onChange={setDepartment} placeholder="Department name" />
-                <Field label="Title / Role" value={title} onChange={setTitle} placeholder="Coordinator, lead, etc." />
-                <Field label="Organization" value={organization} onChange={setOrganization} placeholder="Campus / team name" />
+                <label>
+                  <span className="mb-2 block text-sm font-medium text-carbon-50">Department</span>
+                  <select
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value)}
+                    className="w-full rounded-2xl border border-white/10 bg-carbon-800 px-4 py-3 text-sm text-white outline-none transition focus:border-white/25 appearance-none cursor-pointer"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`
+                    }}
+                  >
+                    <option value="" className="bg-carbon-800 text-white">Select department</option>
+                    {departmentOptions.map((opt) => (
+                      <option key={opt} value={opt} className="bg-carbon-800 text-white">
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  <span className="mb-2 block text-sm font-medium text-carbon-50">Title / Role</span>
+                  <select
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full rounded-2xl border border-white/10 bg-carbon-800 px-4 py-3 text-sm text-white outline-none transition focus:border-white/25 appearance-none cursor-pointer"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`
+                    }}
+                  >
+                    <option value="" className="bg-carbon-800 text-white">Select title</option>
+                    {titleOptions.map((opt) => (
+                      <option key={opt} value={opt} className="bg-carbon-800 text-white">
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  <span className="mb-2 block text-sm font-medium text-carbon-50">Organization</span>
+                  <select
+                    value={organization}
+                    onChange={(e) => setOrganization(e.target.value)}
+                    className="w-full rounded-2xl border border-white/10 bg-carbon-800 px-4 py-3 text-sm text-white outline-none transition focus:border-white/25 appearance-none cursor-pointer"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`
+                    }}
+                  >
+                    <option value="" className="bg-carbon-800 text-white">Select organization</option>
+                    {organizationOptions.map((opt) => (
+                      <option key={opt} value={opt} className="bg-carbon-800 text-white">
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <Field label="Phone" value={phone} onChange={setPhone} placeholder="+91 ..." />
                 <Field label="Address" value={address} onChange={setAddress} placeholder="Office / home address" />
                 <label className="sm:col-span-2">
-                  <span className="mb-2 block text-sm font-medium text-carbon-100/80">Bio / Notes</span>
+                  <span className="mb-2 block text-sm font-medium text-carbon-50">Bio / Notes</span>
                   <textarea
                     value={bio}
                     onChange={(event) => setBio(event.target.value)}
