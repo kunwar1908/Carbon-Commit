@@ -75,6 +75,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
 
   // Import modal
   const [importModalOpen, setImportModalOpen] = useState(false);
+  const [operationsRefreshKey, setOperationsRefreshKey] = useState(0);
 
   // Toast notifications
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -226,6 +227,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
       setLeaderboard(leaderboardData);
       setReferenceData(refs);
       setRecentLogs(logs);
+      setOperationsRefreshKey((k) => k + 1);
     } catch (err) {
       console.error("Refresh failed:", err);
     }
@@ -236,7 +238,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-carbon-900 via-carbon-800 to-carbon-700">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-carbon-950 via-carbon-850 to-carbon-700">
         <div className="text-center">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-accent-400 border-t-transparent mx-auto mb-4"></div>
           <p className="text-white text-lg font-medium">Loading Carbon Commit Dashboard...</p>
@@ -246,10 +248,10 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-carbon-900 via-carbon-800 to-carbon-700">
+    <div className="min-h-screen bg-gradient-to-br from-teal-950/40 via-blue-900/30 to-slate-800/40 text-white">
       <ToastContainer toasts={toasts} onRemove={removeToast} />
       {/* Header */}
-      <header className="border-b border-carbon-700 bg-carbon-800/80 backdrop-blur-sm shadow-lg sticky top-0 z-40">
+      <header className="border-b border-carbon-200/30 bg-white/6 backdrop-blur-md shadow-lg sticky top-0 z-40">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -257,22 +259,22 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                 CC
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Carbon Commit</h1>
-                <p className="text-xs text-carbon-300">TIET Sustainability Dashboard</p>
+                <h1 className="text-2xl font-bold text-carbon-900">Carbon Commit</h1>
+                  <p className="text-xs text-carbon-700">TIET Sustainability Dashboard</p>
               </div>
             </div>
 
             <div className="flex items-center gap-4">
-              <div className="hidden sm:flex items-center gap-2 text-sm text-carbon-200">
+              <div className="hidden sm:flex items-center gap-2 text-sm text-carbon-700">
                 <span>{session.user.email}</span>
                 {profileName && <span className="text-carbon-500">•</span>}
-                {profileName && <span className="font-medium text-carbon-100">{profileName}</span>}
+                {profileName && <span className="font-medium text-carbon-700">{profileName}</span>}
               </div>
 
               <div className="flex gap-2 relative">
                 <button
                   onClick={() => setNotificationPanelOpen(!notificationPanelOpen)}
-                  className="relative px-3 py-2 rounded-2xl bg-carbon-700/40 text-carbon-100 hover:bg-carbon-600/60 font-medium text-sm transition-all duration-200 border border-carbon-600/30"
+                  className="relative px-3 py-2 rounded-2xl bg-white/6 text-carbon-900 hover:bg-white/5 font-medium text-sm transition-all duration-200 border border-carbon-200"
                 >
                   🔔 Notifications
                   {notificationCount > 0 && (
@@ -283,13 +285,13 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                 </button>
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
-                  className="px-3 py-2 rounded-2xl bg-carbon-700/40 text-carbon-100 hover:bg-carbon-600/60 font-medium text-sm transition-all duration-200 border border-carbon-600/30"
+                  className="px-3 py-2 rounded-2xl bg-white/6 text-carbon-900 hover:bg-white/5 font-medium text-sm transition-all duration-200 border border-carbon-200"
                 >
                   👤 Profile
                 </button>
                 <button
                   onClick={() => void onSignOut()}
-                  className="px-3 py-2 rounded-2xl bg-carbon-700/40 text-carbon-100 hover:bg-carbon-600/60 font-medium text-sm transition-all duration-200 border border-carbon-600/30"
+                  className="px-3 py-2 rounded-2xl bg-white/6 text-carbon-900 hover:bg-white/5 font-medium text-sm transition-all duration-200 border border-carbon-200"
                 >
                   Sign Out
                 </button>
@@ -300,7 +302,15 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
       </header>
 
       {/* Profile Panel - Modal */}
-      <ProfilePanel session={session} open={profileOpen} onClose={() => setProfileOpen(false)} onSaveSuccess={(msg) => addToast(msg, "success")} />
+      <ProfilePanel
+        session={session}
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+        onSaveSuccess={(msg) => {
+          addToast(msg, "success");
+          void refreshData();
+        }}
+      />
 
       {/* Notification Modal */}
       <NotificationModal open={notificationPanelOpen} onClose={() => setNotificationPanelOpen(false)} accessToken={session.access_token} />
@@ -315,8 +325,8 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
               onClick={() => setCurrentPage(page)}
               className={`px-4 py-3 font-medium border-b-2 transition-all duration-300 whitespace-nowrap ${
                 currentPage === page
-                  ? "border-accent-400 text-accent-300 bg-carbon-700/40"
-                  : "border-transparent text-carbon-300 hover:text-carbon-200"
+                  ? "border-accent-600 text-white bg-accent-600 rounded-t-lg"
+                  : "border-transparent text-white/70 hover:text-white"
               }`}
             >
               {page === "dashboard" && "📊 Dashboard"}
@@ -327,7 +337,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
         </div>
 
         {error && (
-          <div className="mb-6 rounded-lg border border-red-500/40 bg-red-950/50 p-4 text-red-300 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 animate-in fade-in slide-in-from-top-2 duration-300">
             <p className="font-semibold">Error:</p>
             <p className="text-sm">{error}</p>
           </div>
@@ -345,29 +355,29 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             </div>
 
             {/* Emission Criteria */}
-            <div className="rounded-xl border border-carbon-700 bg-gradient-to-br from-carbon-800/50 to-carbon-700/50 p-6 shadow-lg backdrop-blur-sm hover:border-carbon-600 transition-colors duration-300">
-              <h2 className="text-xl font-bold text-accent-400 mb-4">📐 Carbon Emission Calculation Criteria</h2>
+            <div className="rounded-2xl border border-carbon-500/10 bg-gradient-to-br from-white/8 via-blue-500/5 to-teal-500/4 p-6 shadow-lg backdrop-blur-sm hover:border-accent-200/30 transition-colors duration-300">
+              <h2 className="text-xl font-bold text-carbon-900 mb-4">📐 Carbon Emission Calculation Criteria</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {emissionCriteria.map((item) => (
-                  <div key={item.activity} className="border border-carbon-700 rounded-lg p-4 bg-gradient-to-br from-carbon-800/30 to-carbon-700/30 hover:border-accent-500/50 transition-all duration-300 transform hover:scale-105">
-                    <p className="font-semibold text-accent-300 mb-1">{item.activity}</p>
-                    <p className="text-sm font-mono text-accent-400 bg-carbon-900/50 p-2 rounded mb-2">{item.formula}</p>
-                    <p className="text-xs text-carbon-300">{item.description}</p>
+                  <div key={item.activity} className="rounded-2xl border border-carbon-200/40 bg-gradient-to-r from-white/7 via-purple-500/4 to-blue-500/3 p-4 hover:border-accent-300/30 transition-all duration-300 transform hover:scale-[1.02]">
+                    <p className="font-semibold text-carbon-900 mb-1">{item.activity}</p>
+                    <p className="text-sm font-mono text-carbon-900 bg-white/3 p-2 rounded-lg mb-2 border border-carbon-200/30">{item.formula}</p>
+                    <p className="text-xs text-carbon-600">{item.description}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Data Entry Form */}
-            <div className="rounded-xl border border-carbon-700 bg-gradient-to-br from-carbon-800/50 to-carbon-700/50 p-6 shadow-lg backdrop-blur-sm">
-              <h2 className="text-xl font-bold text-accent-400 mb-4">📝 Record Activity</h2>
+            <div className="rounded-2xl border border-carbon-500/10 bg-white/5 p-6 shadow-lg backdrop-blur-sm">
+              <h2 className="text-xl font-bold text-carbon-900 mb-4">📝 Record Activity</h2>
               <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-carbon-200 mb-2">Department</label>
+                  <label className="block text-sm font-medium text-carbon-700 mb-2">Department</label>
                   <select
                     value={selectedDeptId}
                     onChange={(e) => setSelectedDeptId(Number(e.target.value))}
-                    className="w-full px-4 py-2 border border-carbon-600 bg-carbon-700/50 text-white rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all duration-300"
+                    className="w-full px-4 py-2 border border-carbon-300 bg-white/6 text-carbon-900 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all duration-300"
                   >
                     <option value="">Select department</option>
                     {referenceData.departments.map((dept) => (
@@ -379,11 +389,11 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-carbon-200 mb-2">Activity Type</label>
+                  <label className="block text-sm font-medium text-carbon-700 mb-2">Activity Type</label>
                   <select
                     value={selectedActivityType}
                     onChange={(e) => setSelectedActivityType(e.target.value)}
-                    className="w-full px-4 py-2 border border-carbon-600 bg-carbon-700/50 text-white rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all duration-300"
+                    className="w-full px-4 py-2 border border-carbon-300 bg-white/6 text-carbon-900 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all duration-300"
                   >
                     <option value="">Select activity</option>
                     {activityOptions.map((act) => (
@@ -395,7 +405,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-carbon-200 mb-2">
+                  <label className="block text-sm font-medium text-carbon-700 mb-2">
                     Units ({selectedActivityType ? activityOptions.find((a) => a.activityType === selectedActivityType)?.unit : "units"})
                   </label>
                   <input
@@ -405,7 +415,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                     value={units}
                     onChange={(e) => setUnits(e.target.value)}
                     placeholder="0"
-                    className="w-full px-4 py-2 border border-carbon-600 bg-carbon-700/50 text-white rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all duration-300 placeholder-carbon-400"
+                    className="w-full px-4 py-2 border border-carbon-300 bg-white/6 text-carbon-900 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all duration-300 placeholder-carbon-500"
                   />
                 </div>
 
@@ -421,11 +431,11 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
               </form>
 
               {submission && (
-                <div className={`mt-4 p-4 rounded-lg border transition-all duration-300 animate-in fade-in slide-in-from-top-2 ${submission.exceedsBaseline ? "bg-red-950/50 border-red-500/40" : "bg-carbon-700/50 border-accent-500/40"}`}>
-                  <p className={`font-semibold ${submission.exceedsBaseline ? "text-red-400" : "text-accent-400"}`}>
+                <div className={`mt-4 p-4 rounded-lg border transition-all duration-300 animate-in fade-in slide-in-from-top-2 ${submission.exceedsBaseline ? "bg-red-50 border-red-200" : "bg-white/6 border-accent-200/40"}`}>
+                  <p className={`font-semibold ${submission.exceedsBaseline ? "text-red-700" : "text-accent-600"}`}>
                     {submission.exceedsBaseline ? "⚠️ Alert" : "✓ Recorded"}
                   </p>
-                  <p className={`text-sm mt-1 ${submission.exceedsBaseline ? "text-red-300" : "text-accent-300"}`}>
+                  <p className={`text-sm mt-1 ${submission.exceedsBaseline ? "text-red-700" : "text-accent-700"}`}>
                     CO₂e: {submission.co2Result.toFixed(2)} kg | Total: {submission.totalEmissions.toFixed(2)} kg
                   </p>
                 </div>
@@ -433,12 +443,12 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             </div>
 
             {/* Recent Logs - Paginated */}
-            <div className="rounded-xl border border-carbon-700 bg-gradient-to-br from-carbon-800/50 to-carbon-700/50 p-6 shadow-lg backdrop-blur-sm">
+            <div className="rounded-2xl border border-carbon-500/10 bg-gradient-to-br from-white/8 via-rose-500/5 to-orange-500/4 p-6 shadow-lg backdrop-blur-sm">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-accent-400">📋 Recent Insertions</h2>
+                <h2 className="text-xl font-bold text-carbon-900">📋 Recent Insertions</h2>
                 <button
                   onClick={() => void refreshData()}
-                  className="px-3 py-1 bg-carbon-700/50 text-carbon-200 rounded-lg hover:bg-carbon-600/50 text-sm font-medium transition-all duration-300 border border-carbon-600/50"
+                  className="px-3 py-1 bg-white/6 text-carbon-900 rounded-lg hover:bg-white/5 text-sm font-medium transition-all duration-300 border border-carbon-300/50"
                 >
                   🔄 Refresh
                 </button>
@@ -450,23 +460,23 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                 <>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
-                      <thead className="bg-carbon-800/50 border-b border-carbon-700">
+                      <thead className="bg-white/6 border-b border-carbon-200">
                         <tr>
-                          <th className="px-4 py-2 text-left font-semibold text-carbon-200">Department</th>
-                          <th className="px-4 py-2 text-left font-semibold text-carbon-200">Activity</th>
-                          <th className="px-4 py-2 text-right font-semibold text-carbon-200">Units</th>
-                          <th className="px-4 py-2 text-right font-semibold text-carbon-200">CO₂ (kg)</th>
-                          <th className="px-4 py-2 text-left font-semibold text-carbon-200">Date</th>
+                          <th className="px-4 py-2 text-left font-semibold text-carbon-800">Department</th>
+                          <th className="px-4 py-2 text-left font-semibold text-carbon-800">Activity</th>
+                          <th className="px-4 py-2 text-right font-semibold text-carbon-800">Units</th>
+                          <th className="px-4 py-2 text-right font-semibold text-carbon-800">CO₂ (kg)</th>
+                          <th className="px-4 py-2 text-left font-semibold text-carbon-800">Date</th>
                         </tr>
                       </thead>
                       <tbody>
                         {paginatedLogs.map((log) => (
-                          <tr key={log.id} className="border-b border-carbon-700 hover:bg-carbon-800/30 transition-colors duration-200">
-                            <td className="px-4 py-2 text-carbon-200">{log.deptName}</td>
-                            <td className="px-4 py-2 text-carbon-300">{log.activityType}</td>
-                            <td className="px-4 py-2 text-right text-carbon-300">{log.units.toFixed(2)}</td>
-                            <td className="px-4 py-2 text-right font-semibold text-accent-400">{log.co2Result.toFixed(2)}</td>
-                            <td className="px-4 py-2 text-carbon-400 text-xs">{new Date(log.timestamp).toLocaleDateString()}</td>
+                          <tr key={log.id} className="border-b border-carbon-200 hover:bg-white/5 transition-colors duration-200">
+                            <td className="px-4 py-2 text-carbon-700">{log.deptName}</td>
+                            <td className="px-4 py-2 text-carbon-600">{log.activityType}</td>
+                            <td className="px-4 py-2 text-right text-carbon-600">{log.units.toFixed(2)}</td>
+                            <td className="px-4 py-2 text-right font-semibold text-accent-500">{log.co2Result.toFixed(2)}</td>
+                            <td className="px-4 py-2 text-carbon-500 text-xs">{new Date(log.timestamp).toLocaleDateString()}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -478,7 +488,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                     <button
                       onClick={() => setRecentLogsPage(Math.max(0, recentLogsPage - 1))}
                       disabled={recentLogsPage === 0}
-                      className="px-3 py-1 bg-carbon-700/50 text-carbon-200 rounded-lg hover:bg-carbon-600/50 disabled:opacity-50 text-sm font-medium transition-all duration-300 border border-carbon-600/50"
+                      className="px-3 py-1 bg-white/6 text-carbon-900 rounded-lg hover:bg-white/5 disabled:opacity-50 text-sm font-medium transition-all duration-300 border border-carbon-200"
                     >
                       ← Previous
                     </button>
@@ -488,7 +498,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                     <button
                       onClick={() => setRecentLogsPage(Math.min(totalPages - 1, recentLogsPage + 1))}
                       disabled={recentLogsPage >= totalPages - 1}
-                      className="px-3 py-1 bg-carbon-700/50 text-carbon-200 rounded-lg hover:bg-carbon-600/50 disabled:opacity-50 text-sm font-medium transition-all duration-300 border border-carbon-600/50"
+                      className="px-3 py-1 bg-white/6 text-carbon-900 rounded-lg hover:bg-white/5 disabled:opacity-50 text-sm font-medium transition-all duration-300 border border-carbon-200"
                     >
                       Next →
                     </button>
@@ -498,22 +508,22 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             </div>
 
             {/* Leaderboard - Paginated */}
-            <div className="rounded-xl border border-carbon-700 bg-gradient-to-br from-carbon-800/50 to-carbon-700/50 p-6 shadow-lg backdrop-blur-sm">
-              <h2 className="text-xl font-bold text-accent-400 mb-4">🏆 Leaderboard</h2>
+            <div className="rounded-2xl border border-carbon-500/10 bg-gradient-to-br from-white/8 via-yellow-500/5 to-amber-500/4 p-6 shadow-lg backdrop-blur-sm">
+              <h2 className="text-xl font-bold text-carbon-900 mb-4">🏆 Leaderboard</h2>
               {leaderboard.length === 0 ? (
                 <p className="text-carbon-300 text-center py-8">No leaderboard data</p>
               ) : (
                 <div className="space-y-2">
                   {leaderboard.slice(0, 10).map((entry) => (
-                    <div key={entry.deptId} className="flex items-center justify-between p-3 bg-carbon-800/30 rounded-lg border border-carbon-700 hover:border-carbon-600 transition-all duration-300 hover:bg-carbon-800/50">
+                    <div key={entry.deptId} className="flex items-center justify-between p-3 bg-white/6 rounded-lg border border-carbon-200 hover:border-accent-200 transition-all duration-300 hover:bg-white/5">
                       <div className="flex items-center gap-3">
-                        <span className="text-lg font-bold text-carbon-400 w-6">#{entry.rank}</span>
+                        <span className="text-lg font-bold text-carbon-600 w-6">#{entry.rank}</span>
                         <div>
-                          <p className="font-semibold text-carbon-100">{entry.deptName}</p>
-                          <p className="text-xs text-carbon-400">{entry.totalEmissions.toFixed(2)} kg CO₂</p>
+                          <p className="font-semibold text-carbon-800">{entry.deptName}</p>
+                          <p className="text-xs text-carbon-600">{entry.totalEmissions.toFixed(2)} kg CO₂</p>
                         </div>
                       </div>
-                      <div className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-300 ${entry.exceedsBaseline ? "bg-red-950/60 text-red-300 border border-red-700/40" : "bg-carbon-700/60 text-accent-300 border border-accent-500/40"}`}>
+                      <div className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-300 ${entry.exceedsBaseline ? "bg-red-50 text-red-700 border border-red-200" : "bg-accent-50 text-accent-700 border border-accent-200"}`}>
                         {entry.exceedsBaseline ? "Over" : "Under"}
                       </div>
                     </div>
@@ -528,15 +538,15 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
         {currentPage === "operations" && (
           <div className="space-y-6 animate-in fade-in duration-300">
             {/* Operations Tabs */}
-            <div className="flex gap-2 border-b border-carbon-700 overflow-x-auto pb-4">
+            <div className="flex gap-2 border-b border-carbon-600/30 overflow-x-auto pb-4">
               {(["kpi", "audit", "footprint", "export", "import"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveOperationsTab(tab)}
                   className={`px-4 py-2 font-medium whitespace-nowrap border-b-2 transition-all duration-300 ${
                     activeOperationsTab === tab
-                      ? "border-accent-400 text-accent-400 bg-carbon-700/40"
-                      : "border-transparent text-carbon-300 hover:text-carbon-200"
+                      ? "border-accent-600 text-white bg-accent-600 font-semibold rounded-t-lg"
+                      : "border-transparent text-white/70 hover:text-white"
                   }`}
                 >
                   {tab === "kpi" && "📊 KPIs"}
@@ -548,20 +558,36 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
               ))}
             </div>
 
-            <div className="bg-carbon-800/50 rounded-xl border border-carbon-700 shadow-lg p-6 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
-              {activeOperationsTab === "kpi" && <KpiGrid accessToken={session.access_token} />}
+            <div className="bg-gradient-to-br from-white/8 via-violet-500/5 to-pink-500/4 rounded-2xl border border-carbon-200 shadow-lg p-6 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
+              {activeOperationsTab === "kpi" && <KpiGrid accessToken={session.access_token} refreshKey={operationsRefreshKey} />}
               {activeOperationsTab === "audit" && <AuditViewer accessToken={session.access_token} />}
               
               {activeOperationsTab === "footprint" && <FootprintChart accessToken={session.access_token} />}
               {activeOperationsTab === "export" && <ExportPanel accessToken={session.access_token} />}
               {activeOperationsTab === "import" && (
-                <div>
-                  <button
-                    onClick={() => setImportModalOpen(true)}
-                    className="px-6 py-3 bg-gradient-to-r from-accent-500 to-accent-600 text-carbon-900 rounded-lg hover:from-accent-600 hover:to-accent-700 font-medium transition-all duration-300 transform hover:scale-105 active:scale-95"
-                  >
-                    + Import CSV
-                  </button>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => setImportModalOpen(true)}
+                      className="px-6 py-3 bg-gradient-to-r from-accent-500 to-accent-600 text-carbon-900 rounded-lg hover:from-accent-600 hover:to-accent-700 font-medium transition-all duration-300 transform hover:scale-105 active:scale-95"
+                    >
+                      + Import CSV
+                    </button>
+                    <div className="text-sm text-carbon-700">Or drop files via the Import modal. See format below.</div>
+                  </div>
+
+                  <div className="rounded-lg border border-carbon-200 bg-white/6 p-4 text-sm text-carbon-800">
+                    <p className="font-semibold mb-2">CSV Format (for Operations Import)</p>
+                    <ul className="list-disc pl-4">
+                      <li><strong>Columns (in order):</strong> deptId, activityType, units, notes (optional), timestamp (optional)</li>
+                      <li><strong>deptId:</strong> department id or code</li>
+                      <li><strong>activityType:</strong> predefined activity type (e.g., energy, waste, travel)</li>
+                      <li><strong>units:</strong> numeric value</li>
+                      <li><strong>timestamp:</strong> optional, YYYY-MM-DD (if omitted server time used)</li>
+                    </ul>
+                    <p className="mt-2 text-xs text-carbon-700">Example row: <span className="font-mono">dept123,energy,42,"LED replacement",2024-09-01</span></p>
+                  </div>
+
                   <ImportModal
                     accessToken={session.access_token}
                     isOpen={importModalOpen}
@@ -587,17 +613,24 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
 
 // Helper Components
 const StatCard = ({ label, value, color }: { label: string; value: number; color: "blue" | "red" | "green" | "purple" }) => {
-  const colors = {
-    blue: "from-carbon-800/60 to-carbon-700/40 border-carbon-600/50 text-accent-300",
-    red: "from-carbon-800/60 to-carbon-700/40 border-carbon-600/50 text-accent-300",
-    green: "from-carbon-800/60 to-carbon-700/40 border-carbon-600/50 text-accent-300",
-    purple: "from-carbon-800/60 to-carbon-700/40 border-carbon-600/50 text-accent-300",
+  const accentClasses: Record<string, string> = {
+    blue: "from-accent-400 to-accent-600 border-accent-400 text-accent-800",
+    red: "from-red-300 to-red-500 border-red-300 text-red-800",
+    green: "from-emerald-300 to-emerald-500 border-emerald-300 text-emerald-800",
+    purple: "from-violet-300 to-violet-500 border-violet-300 text-violet-800",
   };
 
+  const accent = accentClasses[color] ?? accentClasses.blue;
+
   return (
-    <div className={`rounded-xl border bg-gradient-to-br ${colors[color]} p-6 shadow-lg backdrop-blur-sm hover:scale-105 transition-all duration-300 transform`}>
-      <p className="text-sm font-medium opacity-75 text-carbon-200">{label}</p>
-      <p className="text-3xl font-bold mt-2">{value}</p>
+    <div className={`rounded-2xl border bg-gradient-to-br from-white/8 via-cyan-500/5 to-blue-500/4 p-6 shadow-lg backdrop-blur-sm hover:scale-105 transition-all duration-300 transform border-carbon-200`}>
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium opacity-90 text-carbon-700">{label}</p>
+        <div className={`h-9 w-9 rounded-lg bg-gradient-to-br ${accent} flex items-center justify-center`}>
+          <div className="h-5 w-5 rounded-sm bg-white/80" />
+        </div>
+      </div>
+      <p className="text-3xl font-bold text-carbon-900 mt-2">{value}</p>
     </div>
   );
 };

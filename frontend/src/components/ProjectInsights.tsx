@@ -1,29 +1,72 @@
 import type { ReactNode } from "react";
 
 const schemaTables = [
-  "user_profiles",
-  "dept_master",
-  "emission_ref",
-  "activity_logs",
-  "audit_logs",
-  "analytics_cache",
-  "notifications",
-  "admin_actions",
+  { name: "user_profiles", purpose: "Stores user metadata, roles, department links, and profile settings." },
+  { name: "dept_master", purpose: "Defines departments, baseline usage, and ownership metadata." },
+  { name: "emission_ref", purpose: "Holds the emission factor lookup table used during CO2e calculation." },
+  { name: "activity_logs", purpose: "Primary fact table for submitted campus sustainability activity." },
+  { name: "audit_logs", purpose: "Immutable trail of who changed what, when, and from where." },
+  { name: "analytics_cache", purpose: "Precomputed totals for fast dashboard and leaderboard rendering." },
+  { name: "notifications", purpose: "Stores quota alerts, confirmations, and system notices." },
+  { name: "admin_actions", purpose: "Tracks elevated admin operations and review events." },
 ];
 
 const schemaFunctions = [
-  "update_analytics_cache()",
-  "get_leaderboard_data()",
-  "get_department_analytics()",
-  "log_audit_action()",
-  "notify_baseline_exceeded()",
+  {
+    name: "update_analytics_cache()",
+    summary: "Rebuilds department totals after activity changes so charts and rankings stay fresh.",
+    usedBy: "Called after activity writes and cache refresh jobs.",
+  },
+  {
+    name: "get_leaderboard_data()",
+    summary: "Returns ranking rows with emissions, baseline variance, and display labels.",
+    usedBy: "Consumed by the dashboard leaderboard and analytics views.",
+  },
+  {
+    name: "get_department_analytics()",
+    summary: "Aggregates department performance for KPI cards and trend summaries.",
+    usedBy: "Used by the dashboard and insights panels.",
+  },
+  {
+    name: "log_audit_action()",
+    summary: "Writes a normalized audit entry for inserts, updates, deletes, and profile changes.",
+    usedBy: "Invoked by triggers and security-sensitive mutations.",
+  },
+  {
+    name: "notify_baseline_exceeded()",
+    summary: "Creates alerts when a department crosses its baseline quota.",
+    usedBy: "Called when emissions surpass the configured threshold.",
+  },
 ];
 
 const schemaTriggers = [
-  "activity_logs_update_analytics_trigger",
-  "activity_logs_audit_trigger",
-  "user_profiles_audit_trigger",
-  "notifications_update_read_at_trigger",
+  {
+    name: "activity_logs_update_analytics_trigger",
+    firesOn: "After insert or update on activity_logs",
+    effect: "Refreshes analytics cache rows immediately after a log changes.",
+  },
+  {
+    name: "activity_logs_audit_trigger",
+    firesOn: "After insert, update, or delete on activity_logs",
+    effect: "Records a compliance-friendly audit entry for the mutation.",
+  },
+  {
+    name: "user_profiles_audit_trigger",
+    firesOn: "After profile updates",
+    effect: "Keeps a history of identity and role changes for admin review.",
+  },
+  {
+    name: "notifications_update_read_at_trigger",
+    firesOn: "When notification status changes to read",
+    effect: "Back-fills read timestamps so the inbox stays queryable and accurate.",
+  },
+];
+
+const automationSteps = [
+  "A user submits an activity from the dashboard form.",
+  "The backend calculates CO2e using emission_ref and writes activity_logs.",
+  "Database triggers refresh analytics_cache and create audit_logs entries.",
+  "The leaderboard, KPI cards, and notifications read the updated cache.",
 ];
 
 const demoScope = [
@@ -53,13 +96,11 @@ const roadmapItems = [
 export const ProjectInsights = () => {
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-8 backdrop-blur-sm">
-        <h2 className="text-3xl font-bold text-emerald-400 mb-2">📊 Project Architecture & Insights</h2>
-        <p className="text-slate-300 text-lg">Database structure, demo coverage, and advancement roadmap.</p>
+      <div className="rounded-2xl border border-carbon-200 bg-gradient-to-br from-slate-50/6 via-cyan-500/5 to-teal-500/4 p-8 backdrop-blur-sm">
+        <h2 className="text-3xl font-bold text-accent-600 mb-2">📊 Project Architecture & Insights</h2>
+        <p className="text-carbon-700 text-lg">A documentation-style view of the schema, triggers, functions, and demo coverage behind Carbon Commit.</p>
       </div>
 
-      {/* Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard label="📋 Tables" value="8" color="emerald" />
         <StatCard label="⚙️ Functions" value="5" color="blue" />
@@ -67,79 +108,120 @@ export const ProjectInsights = () => {
         <StatCard label="🔐 RLS Policies" value="10+" color="amber" />
       </div>
 
-      {/* Main Grid */}
       <div className="grid gap-6 xl:grid-cols-2">
-        {/* Database Tables */}
-        <InfoCard 
-          title="Database Tables" 
+        <InfoCard
+          title="Database Tables"
           icon="🗄️"
-          summary="Core models for users, departments, activity, analytics, and compliance."
+          summary="The tables below are the core nouns of the platform: identity, departments, emissions, logs, and alerts."
           color="emerald"
         >
-          <div className="space-y-2">
-            {schemaTables.map((table, i) => (
-              <div key={table} className="flex items-center gap-3">
-                <div className="h-6 w-6 rounded-lg bg-emerald-950/50 border border-emerald-700/50 flex items-center justify-center text-emerald-400 text-sm font-bold">
-                  {i + 1}
+          <div className="space-y-3">
+            {schemaTables.map((table, index) => (
+              <div key={table.name} className="rounded-xl border border-carbon-200 bg-white/6 px-4 py-3">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-sm font-bold text-emerald-700">
+                    {index + 1}
+                  </div>
+                  <div>
+                    <p className="font-mono text-sm font-semibold text-carbon-900">{table.name}</p>
+                    <p className="text-sm text-carbon-700">{table.purpose}</p>
+                  </div>
                 </div>
-                <span className="text-slate-300 font-mono text-sm">{table}</span>
               </div>
             ))}
           </div>
         </InfoCard>
 
-        {/* Automation Layer */}
-        <InfoCard 
-          title="Automation Layer" 
+        <InfoCard
+          title="Automation Layer"
           icon="⚡"
-          summary="Functions and triggers keep analytics, audit records, and notifications synced."
+          summary="Functions perform the work; triggers decide when that work runs. Together they keep derived data and compliance records in sync."
           color="blue"
         >
-          <div className="space-y-4">
-            <GroupBlock title="Functions" items={schemaFunctions} />
-            <GroupBlock title="Triggers" items={schemaTriggers} />
+          <div className="space-y-6">
+            <DocBlock
+              title="Functions"
+              intro="Reusable database routines that compute or persist derived state."
+            >
+              {schemaFunctions.map((item) => (
+                <div key={item.name} className="rounded-xl border border-carbon-200 bg-white/6 px-4 py-3">
+                  <p className="font-mono text-sm font-semibold text-carbon-900">{item.name}</p>
+                  <p className="mt-1 text-sm text-carbon-700">{item.summary}</p>
+                  <p className="mt-2 text-xs uppercase tracking-[0.2em] text-carbon-600">{item.usedBy}</p>
+                </div>
+              ))}
+            </DocBlock>
+
+            <DocBlock
+              title="Triggers"
+              intro="Automatic hooks that fire after database writes and keep secondary data current."
+            >
+              {schemaTriggers.map((item) => (
+                <div key={item.name} className="rounded-xl border border-carbon-200 bg-white/6 px-4 py-3">
+                  <p className="font-mono text-sm font-semibold text-carbon-900">{item.name}</p>
+                  <p className="mt-1 text-xs uppercase tracking-[0.2em] text-carbon-600">{item.firesOn}</p>
+                  <p className="mt-2 text-sm text-carbon-700">{item.effect}</p>
+                </div>
+              ))}
+            </DocBlock>
           </div>
         </InfoCard>
 
-        {/* Demo Dataset */}
-        <InfoCard 
-          title="Campus Demo Dataset" 
+        <InfoCard
+          title="Automation Flow"
+          icon="🔁"
+          summary="This is the actual execution order the app follows after a user submits or edits activity data."
+          color="purple"
+        >
+          <div className="space-y-3">
+            {automationSteps.map((step, index) => (
+              <div key={step} className="flex gap-3 rounded-xl border border-carbon-200 bg-white/6 px-4 py-3">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-purple-50 text-sm font-bold text-purple-700">
+                  {index + 1}
+                </div>
+                <p className="text-sm text-carbon-700">{step}</p>
+              </div>
+            ))}
+          </div>
+        </InfoCard>
+
+        <InfoCard
+          title="Campus Demo Dataset"
           icon="🏫"
-          summary="Thapar-inspired schools and support services for testing at scale."
+          summary="The demo dataset mirrors campus operations so the dashboard can show realistic numbers immediately after seeding."
           color="purple"
         >
           <div className="grid grid-cols-2 gap-2">
             {demoScope.map((dept) => (
-              <div key={dept} className="px-3 py-2 rounded-lg bg-purple-950/30 border border-purple-700/30 hover:border-purple-600/50 transition-colors duration-300">
-                <p className="text-sm text-purple-300">{dept}</p>
+              <div key={dept} className="rounded-lg border border-purple-200 bg-purple-50 px-3 py-2 transition-colors duration-300 hover:border-purple-300">
+                <p className="text-sm text-purple-700">{dept}</p>
               </div>
             ))}
           </div>
         </InfoCard>
 
-        {/* Roadmap */}
-        <InfoCard 
-          title="Product Roadmap" 
+        <InfoCard
+          title="Product Roadmap"
           icon="🚀"
-          summary="Features and enhancements for the sustainability dashboard."
+          summary="A documentation-style view of where the platform can grow next."
           color="amber"
         >
           <div className="space-y-3">
             {roadmapItems.map((item, i) => (
               <div key={item} className="flex gap-3">
-                <div className="h-8 w-8 rounded-full bg-amber-950/50 border border-amber-700/50 flex items-center justify-center text-amber-400 text-sm font-bold flex-shrink-0">
+                <div className="h-8 w-8 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 text-sm font-bold flex-shrink-0">
                   {i + 1}
                 </div>
-                <p className="text-slate-300 text-sm pt-1">{item}</p>
+                <p className="text-carbon-700 text-sm pt-1">{item}</p>
               </div>
             ))}
           </div>
         </InfoCard>
       </div>
 
-      {/* Architecture Diagram */}
       <div className="rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-8 backdrop-blur-sm">
-        <h3 className="text-2xl font-bold text-emerald-400 mb-6">🔄 System Architecture Flow</h3>
+        <h3 className="mb-2 text-2xl font-bold text-emerald-400">🔄 System Architecture Flow</h3>
+        <p className="mb-6 text-sm text-slate-300">The app is layered so the UI stays thin, the services stay testable, and the database keeps the expensive work close to the data.</p>
         <div className="space-y-4">
           <ArchitectureBox title="Frontend (React + TypeScript)" color="blue" items={["Dashboard", "Operations Console", "Insights Page"]} />
           <Arrow />
@@ -153,7 +235,6 @@ export const ProjectInsights = () => {
         </div>
       </div>
 
-      {/* Stats Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <SummaryCard title="Total Endpoints" value="15+" description="REST API endpoints covering all operations" icon="📡" />
         <SummaryCard title="Database Queries" value="50+" description="Optimized queries with caching layer" icon="🔍" />
@@ -194,50 +275,38 @@ type InfoCardProps = {
 };
 
 const InfoCard = ({ title, icon, summary, children, color }: InfoCardProps) => {
-  const colors = {
-    emerald: "border-emerald-700/50 bg-gradient-to-br from-emerald-950/30 to-emerald-900/20",
-    blue: "border-blue-700/50 bg-gradient-to-br from-blue-950/30 to-blue-900/20",
-    purple: "border-purple-700/50 bg-gradient-to-br from-purple-950/30 to-purple-900/20",
-    amber: "border-amber-700/50 bg-gradient-to-br from-amber-950/30 to-amber-900/20",
-  };
-
   return (
-    <article className={`rounded-2xl border ${colors[color]} p-6 backdrop-blur-sm hover:border-slate-600 transition-all duration-300`}>
-      <h3 className="text-xl font-bold text-white mb-1">{icon} {title}</h3>
-      <p className="text-sm text-slate-400 mb-4">{summary}</p>
+    <article className={`rounded-2xl border border-carbon-200 bg-white/6 p-6 backdrop-blur-sm hover:border-carbon-300 transition-all duration-300`}>
+      <h3 className="text-xl font-bold text-accent-600 mb-1">{icon} {title}</h3>
+      <p className="text-sm text-carbon-700 mb-4">{summary}</p>
       <div className="mt-4">{children}</div>
     </article>
   );
 };
 
-const GroupBlock = ({ title, items }: { title: string; items: string[] }) => (
-  <div>
-    <p className="text-sm font-semibold text-slate-300 mb-3 uppercase tracking-wider">{title}</p>
-    <div className="space-y-2">
-      {items.map((item) => (
-        <div key={item} className="rounded-lg border border-slate-700/50 bg-slate-800/30 px-4 py-3 hover:border-slate-600/50 transition-colors duration-300">
-          <span className="text-sm text-slate-300 font-mono">{item}</span>
-        </div>
-      ))}
-    </div>
-  </div>
+const DocBlock = ({ title, intro, children }: { title: string; intro: string; children: ReactNode }) => (
+  <section>
+    <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-slate-300">{title}</p>
+    <p className="mb-3 text-sm text-carbon-700">{intro}</p>
+    <div className="space-y-2">{children}</div>
+  </section>
 );
 
 const ArchitectureBox = ({ title, color, items }: { title: string; color: "blue" | "purple" | "emerald" | "amber" | "red"; items: string[] }) => {
   const colors = {
-    blue: "border-blue-700/50 bg-gradient-to-r from-blue-950/40 to-blue-900/20",
-    purple: "border-purple-700/50 bg-gradient-to-r from-purple-950/40 to-purple-900/20",
-    emerald: "border-emerald-700/50 bg-gradient-to-r from-emerald-950/40 to-emerald-900/20",
-    amber: "border-amber-700/50 bg-gradient-to-r from-amber-950/40 to-amber-900/20",
-    red: "border-red-700/50 bg-gradient-to-r from-red-950/40 to-red-900/20",
+    blue: "border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100",
+    purple: "border-purple-200 bg-gradient-to-r from-purple-50 to-purple-100",
+    emerald: "border-emerald-200 bg-gradient-to-r from-emerald-50 to-emerald-100",
+    amber: "border-amber-200 bg-gradient-to-r from-amber-50 to-amber-100",
+    red: "border-red-200 bg-gradient-to-r from-red-50 to-red-100",
   };
 
   const textColors = {
-    blue: "text-blue-400",
-    purple: "text-purple-400",
-    emerald: "text-emerald-400",
-    amber: "text-amber-400",
-    red: "text-red-400",
+    blue: "text-blue-600",
+    purple: "text-purple-600",
+    emerald: "text-emerald-600",
+    amber: "text-amber-600",
+    red: "text-red-600",
   };
 
   return (
@@ -245,7 +314,7 @@ const ArchitectureBox = ({ title, color, items }: { title: string; color: "blue"
       <p className={`font-bold text-lg mb-2 ${textColors[color]}`}>{title}</p>
       <div className="flex flex-wrap gap-2">
         {items.map((item) => (
-          <span key={item} className={`text-xs px-2 py-1 rounded-md bg-slate-900/50 border border-slate-700 text-slate-300`}>
+          <span key={item} className={`text-xs px-2 py-1 rounded-md bg-white/6 border border-carbon-200 text-carbon-700`}>
             {item}
           </span>
         ))}

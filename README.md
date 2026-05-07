@@ -61,48 +61,181 @@ Carbon Commit/
 
 ## Core Features
 
-### Authentication
+### 🔐 Authentication & Session Management
+- Supabase Auth integration for secure sign-in and sign-up
+- Bearer token validation on all protected API routes
+- Session persistence and automatic token refresh
+- Role-based access control (ADMIN, MANAGER, USER)
 
-The frontend uses Supabase Auth for sign in and sign up. Protected screens are gated by session state, and backend routes require a valid bearer token.
+### 📝 Activity Logging & Tracking
+- Submit department activity with units and activity type
+- Real-time CO2 calculation using emission reference factors
+- Paginated activity log with date, department, and quantity display
+- Recent insertions view showing latest 10 submissions
+- Success notifications on submission confirmation
 
-### Activity Logging
+### 📊 Analytics & Reporting
+- Department-wise emissions aggregation
+- Comparison against baseline quotas
+- Trend analysis with interactive charts
+- Role-based KPI cards with performance indicators
+- Historical emissions data and patterns
 
-Users can record a department, activity type, and number of units. The backend validates the payload, looks up the matching emission factor, and stores a calculated CO2e result.
+### 🏆 Leaderboard & Rankings
+- Department rankings by total emissions
+- Baseline variance indicators (Over/Under quota)
+- Real-time leaderboard updates
+- Performance comparison visualization
 
-### Analytics and Leaderboard
+### 📋 Audit & Compliance
+- Complete audit trail of all actions
+- User action tracking with timestamps
+- Filter by user, action type, and date range
+- Administrative review capabilities
+- Reset filters for quick access to fresh data
 
-The API exposes department analytics, usage variance, and ranked leaderboard data. The UI renders this with charts and summary cards.
+### 📥 Import & Export
+- Bulk CSV import for activity logs
+- Multiple export formats (CSV, JSON)
+- Inline import instructions
+- Validation and error handling
+- Timestamped exports for record-keeping
 
-### Notification Panel and Flow View
+### 👤 User Profiles & Settings
+- User account management
+- Department assignment and selection
+- Profile updates with real-time refresh
+- Avatar support
+- Session-based profile tracking
 
-The dashboard now includes a live notification panel for quota breaches, recent submissions, and sync status. It also shows a step-by-step submit flow visualization so the full path from browser input to database refresh is visible.
+### 🔔 Notifications & Alerts
+- Real-time notification center
+- Quota breach warnings
+- Activity confirmation messages
+- System status updates
+- Dismissible notifications
 
-### Expanded Trend Chart
-
-The emission trend chart uses a vertical department layout so each department gets its own row and the current-vs-baseline comparison stays readable.
-
-### Seeded Reference Data
-
-The repository includes a seed script that creates demo departments and emission factors so the dashboard is usable immediately after database sync.
+### 📱 Responsive Design
+- Dark-themed interface with modern gradient backgrounds
+- High-contrast cyan accents for accessibility
+- Responsive grid layouts for all screen sizes
+- Smooth animations and transitions
+- Toast notifications for user feedback
 
 ## Dashboard Snapshots
 
-The images below were captured from the running frontend during development.
+The Carbon Commit interface features a modern dark-themed design with teal/blue gradient backgrounds and cyan accent colors for high visibility.
 
-### Overview
+The snapshots are stored in [docs/snapshots](docs/snapshots) and are embedded below so the README shows the actual site surfaces instead of just describing them.
+These captures cover the full product surface: authentication, dashboard, operations, analytics, profile settings, and schema design.
 
-![Carbon Commit authenticated dashboard](docs/snapshots/dashboard-overview.svg)
+### Snapshot Gallery
 
-The current dashboard layout includes a collapsible notification center, a larger emission trend chart, a data flow visualization for the submit pipeline, and a shared row for data entry plus leaderboard.
+| Site Area | Snapshot |
+| --- | --- |
+| Authentication screen | ![Carbon Commit authentication screen](docs/snapshots/auth-screen.svg) |
+| Dashboard overview | ![Carbon Commit dashboard overview](docs/snapshots/dashboard-overview.svg) |
+| Activity log / operations history | ![Carbon Commit activity log](docs/snapshots/activity-log.svg) |
+| Profile settings panel | ![Carbon Commit profile panel](docs/snapshots/profile-panel.svg) |
+| Database schema snapshot | ![Supabase schema snapshot](docs/snapshots/supabase-schema-ssnbnsockfjgsheigkbv.png) |
 
-### Activity Log
+### Site Surface Index
 
-![Carbon Commit activity log result](docs/snapshots/activity-log.svg)
+- **Authentication**: sign in and sign up flow with Supabase Auth.
+- **Dashboard**: KPI cards, notifications, data entry, and live rankings.
+- **Operations**: recent insertions, activity criteria, and leaderboard data.
+- **Analytics**: footprint charts and department comparisons.
+- **Audit**: log filtering and review controls.
+- **Import / Export**: CSV upload and dataset download tools.
+- **Profile Settings**: account metadata, avatar upload, and credentials.
+- **Project Insights**: architecture, tables, triggers, and function reference.
 
-This snapshot captures the submission success state after the activity is recorded and the dashboard refreshes its totals.
+### Coverage Map
 
-## Table DFD
-![Carbon Commit Table Architecture](docs/snapshots/supabase-schema-ssnbnsockfjgsheigkbv.png)
+- **Authentication**: sign in and sign up flow with Supabase Auth.
+- **Dashboard**: KPI cards, notifications, data entry, and live rankings.
+- **Operations**: recent insertions, activity criteria, and leaderboard data.
+- **Analytics**: footprint charts and department comparisons.
+- **Audit**: log filtering and review controls.
+- **Import / Export**: CSV upload and dataset download tools.
+- **Profile Settings**: account metadata, avatar upload, and credentials.
+- **Project Insights**: architecture, tables, triggers, and function reference.
+
+If you want a more complete visual tour, open the app and browse the main dashboard tabs plus the profile panel.
+
+### 🔐 Authentication Screen
+- Sign In / Sign Up interface with Supabase Auth integration
+- Welcome message and project description panel
+- Email and password inputs with validation
+- Responsive design with cyan action buttons
+
+### 📊 Dashboard Tabs
+The main dashboard is organized into five primary sections accessible via tab navigation:
+
+#### **KPIs (Key Performance Indicators)**
+- Role-based performance metrics display
+- Real-time tracked department indicator
+- Performance status cards with color-coded indicators
+- Department analytics at a glance
+
+#### **⚙️ Operations Console** 
+- **Carbon Emission Calculation Criteria**: Reference emission factors with formulas
+  - Electricity: Units (kWh) × 0.82 kg CO₂/kWh
+  - Water: Units (L) × 0.0003 kg CO₂/L
+  - Fuel: Units (L) × 2.68 kg CO₂/L
+  - Waste: Units (kg) × 1.12 kg CO₂/kg
+- **Recent Insertions**: Paginated activity log showing latest submissions
+- **Leaderboard**: Department rankings by emissions with baseline variance indicators
+
+#### **📋 Audit Logs**
+- Complete audit trail of all user actions
+- Filtering by user, action type, and date range
+- Reset filters button for quick view refresh
+- Detailed action tracking and timestamps
+
+#### **🌍 Footprints (Analytics)**
+- Interactive emissions trend chart
+- Section-based views: Transport, Hostel, Facilities
+- Department-wise footprint breakdown
+- Historical trend analysis
+
+#### **📥 Import / 📤 Export**
+- **Import**: CSV bulk upload with inline instructions
+  - Format: `DepartmentID, ActivityType, Units, Description, Date`
+  - No header row required
+  - Real-time validation and error feedback
+- **Export**: Download analytics and logs as CSV/JSON
+  - Multiple export format options
+  - Timestamped file downloads
+
+### 👤 Profile Panel
+- User account settings and avatar management
+- Department selection with dropdown (predefined options)
+- Role display
+- Save changes with success notifications
+- Profile updates trigger dashboard data refresh
+
+### 📐 Project Insights
+- Architecture overview with system components
+- Database schema summary
+- Technology stack details
+- Feature roadmap and implementation notes
+- Color-coded architecture boxes
+
+### 📬 Notifications
+- Real-time notification center
+- Quota breach alerts
+- Activity submission confirmations
+- System status updates
+- Dismissible notification items
+
+### 🎨 Visual Design
+- **Background**: Teal/blue gradient (from-teal-950/40 via-blue-900/30 to-slate-800/40)
+- **Panels**: Light panels with subtle gradients for visual separation
+- **Accents**: Cyan color (#06b6d4) for buttons and active states
+- **Text**: High contrast white text on dark backgrounds, dark text on light panels
+- **Rounded Corners**: Consistent 2xl and 3xl border radius throughout
+- **Shadows**: Depth with subtle shadow effects on panels
 
 ## Backend Details
 
@@ -322,6 +455,12 @@ Supabase Row Level Security is useful for direct Supabase client access, but Pri
 
 ## Suggested Next Steps
 
-- Add screenshots or a short demo GIF to show the dashboard in action.
-- Expand the seed data for more realistic campuses or departments.
-- Replace any remaining Prisma deprecation warnings by fully adopting the current Prisma config workflow.
+- Enhance import validation with detailed error reporting and CSV preview
+- Add email notifications for quota breaches and milestone achievements
+- Implement department comparison views and trend forecasting
+- Add custom date range filtering for analytics
+- Expand the seed data with more realistic multi-campus scenarios
+- Implement cost tracking alongside carbon emissions
+- Add collaborative goal-setting features for departments
+- Create admin dashboard for user management and system monitoring
+- Develop mobile app for on-the-go activity logging

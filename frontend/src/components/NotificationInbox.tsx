@@ -7,10 +7,10 @@ interface NotificationInboxProps {
 }
 
 const typeColors: Record<string, string> = {
-  ERROR: "bg-red-900/40 text-red-200 border border-red-500/30",
-  WARNING: "bg-amber-900/40 text-amber-200 border border-amber-500/30",
-  INFO: "bg-blue-900/40 text-blue-200 border border-blue-500/30",
-  SUCCESS: "bg-emerald-900/40 text-emerald-200 border border-emerald-500/30",
+  ERROR: "bg-red-50 text-red-700 border border-red-200",
+  WARNING: "bg-amber-50 text-amber-700 border border-amber-200",
+  INFO: "bg-blue-50 text-blue-700 border border-blue-200",
+  SUCCESS: "bg-emerald-50 text-emerald-700 border border-emerald-200",
 };
 
 export const NotificationInbox: React.FC<NotificationInboxProps> = ({ accessToken }) => {
@@ -36,7 +36,7 @@ export const NotificationInbox: React.FC<NotificationInboxProps> = ({ accessToke
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-bold text-carbon-50">Notification Inbox</h2>
+      <h2 className="text-lg font-bold text-carbon-900">Notification Inbox</h2>
 
       <div className="flex gap-2 flex-wrap">
         {["all", "unread", "read"].map((filter) => (
@@ -46,7 +46,7 @@ export const NotificationInbox: React.FC<NotificationInboxProps> = ({ accessToke
             className={`px-4 py-2 rounded-lg font-medium transition ${
               filterRead === filter
                 ? "bg-accent-500 text-carbon-900"
-                : "bg-carbon-700/40 text-carbon-300 hover:bg-carbon-700/60"
+                : "bg-white/6 text-carbon-700 hover:bg-white/5"
             }`}
           >
             {filter.charAt(0).toUpperCase() + filter.slice(1)}
@@ -61,30 +61,23 @@ export const NotificationInbox: React.FC<NotificationInboxProps> = ({ accessToke
       ) : (
         <div className="space-y-3">
           {notifications.map((notification) => (
-            <div
-              key={notification.id}
-              className={`p-4 rounded-2xl border-l-4 ${
-                notification.isRead
-                  ? "bg-carbon-700/30 border-carbon-600"
-                  : "bg-carbon-700/50 border-accent-500"
-              }`}
-            >
+            <div key={notification.id} className={`p-4 rounded-2xl border-l-4 ${notification.isRead ? "bg-white/6 border-carbon-200" : "bg-white/8 border-accent-200"}`}>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
-                    <span className={`px-2 py-1 rounded-lg text-xs font-semibold ${typeColors[notification.type] || "bg-carbon-700/40 text-carbon-200"}`}>
+                    <span className={`px-2 py-1 rounded-lg text-xs font-semibold ${typeColors[notification.type] || "bg-white/6 text-carbon-700"}`}>
                       {notification.type}
                     </span>
                     {notification.isRead && (
                       <span className="text-xs text-carbon-400 font-medium">Read</span>
                     )}
                   </div>
-                  <h3 className="text-lg font-semibold text-carbon-50 mt-2">{notification.title}</h3>
-                  <p className="text-carbon-200 mt-1">{notification.message}</p>
+                  <h3 className="text-lg font-semibold text-carbon-900 mt-2">{notification.title}</h3>
+                  <p className="text-carbon-700 mt-1">{notification.message}</p>
                   {notification.relatedData && Object.keys(notification.relatedData).length > 0 && (
                     <details className="mt-2 cursor-pointer">
-                      <summary className="text-accent-400 hover:text-accent-300 text-sm font-medium">Show details</summary>
-                      <pre className="bg-carbon-800/50 p-2 rounded-lg mt-2 text-xs overflow-auto max-h-40 text-carbon-100 border border-carbon-700/30">
+                      <summary className="text-accent-500 hover:text-accent-400 text-sm font-medium">Show details</summary>
+                      <pre className="bg-white/6 p-2 rounded-lg mt-2 text-xs overflow-auto max-h-40 text-carbon-900 border border-carbon-200/30">
                         {JSON.stringify(notification.relatedData, null, 2)}
                       </pre>
                     </details>

@@ -34,30 +34,36 @@ export const AuthScreen = ({ onAuthenticated }: AuthScreenProps) => {
   };
 
   return (
-    <main className="min-h-screen bg-carbon-900 px-4 py-10 text-white">
-      <section className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl items-center justify-center">
-        <div className="grid w-full gap-8 overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-glow backdrop-blur-xl lg:grid-cols-[1.1fr_0.9fr] lg:p-8">
-          <div className="space-y-5">
-            <p className="text-xs uppercase tracking-[0.4em] text-carbon-200/70">Carbon Commit</p>
-            <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">Sign in to manage campus sustainability logs.</h1>
-            <p className="max-w-xl text-sm leading-6 text-carbon-100/80 sm:text-base">
+    <main className="min-h-screen bg-gradient-to-br from-teal-950/40 via-blue-900/30 to-slate-800/40 px-4 py-10 text-white">
+      <section className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-5xl items-center justify-center">
+        <div className="grid w-full gap-8 lg:grid-cols-[1.1fr_0.9fr] items-center">
+          <div className="space-y-6 rounded-[2rem] border border-white/10 bg-gradient-to-br from-teal-600/20 via-blue-600/15 to-purple-600/10 p-8 backdrop-blur-sm lg:order-1">
+            <p className="text-xs uppercase tracking-[0.4em] text-white">Carbon Commit</p>
+            <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl text-white">Manage campus sustainability logs.</h1>
+            <p className="max-w-xl text-sm leading-6 text-white/80 sm:text-base">
               Use Supabase Auth to protect the dashboard, limit log entry to authenticated users, and keep the API tied to real user sessions.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="rounded-[1.75rem] bg-white p-6 text-carbon-900 shadow-2xl">
+        <form onSubmit={handleSubmit} className="w-full rounded-[1.75rem] bg-gradient-to-br from-white via-white/98 to-slate-50 p-6 text-carbon-900 shadow-2xl lg:order-2">
+            <div className="mb-6">
+              <p className="text-xs uppercase tracking-[0.2em] text-carbon-800 font-semibold mb-2">Carbon Commit</p>
+              <h1 className="text-2xl font-bold text-carbon-900 mb-2">Sign In</h1>
+              <p className="text-sm text-carbon-700">Manage campus sustainability logs</p>
+            </div>
+
             <div className="mb-5 flex gap-2 rounded-full bg-carbon-50 p-1 text-sm font-medium">
               <button
                 type="button"
                 onClick={() => setMode("sign-in")}
-                className={`flex-1 rounded-full px-4 py-2 transition ${mode === "sign-in" ? "bg-carbon-900 text-white" : "text-carbon-600"}`}
+                className={`flex-1 rounded-full px-4 py-2 transition ${mode === "sign-in" ? "bg-accent-600 text-white" : "text-carbon-600"}`}
               >
                 Sign In
               </button>
               <button
                 type="button"
                 onClick={() => setMode("sign-up")}
-                className={`flex-1 rounded-full px-4 py-2 transition ${mode === "sign-up" ? "bg-carbon-900 text-white" : "text-carbon-600"}`}
+                className={`flex-1 rounded-full px-4 py-2 transition ${mode === "sign-up" ? "bg-accent-600 text-white" : "text-carbon-600"}`}
               >
                 Sign Up
               </button>
@@ -91,13 +97,13 @@ export const AuthScreen = ({ onAuthenticated }: AuthScreenProps) => {
             <button
               type="submit"
               disabled={busy}
-              className="w-full rounded-2xl bg-carbon-900 px-4 py-3 font-medium text-white transition hover:bg-carbon-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-2xl bg-accent-600 px-4 py-3 font-medium text-white transition hover:bg-accent-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {busy ? "Please wait..." : mode === "sign-in" ? "Sign In" : "Create Account"}
             </button>
 
             {message ? <p className="mt-4 text-sm text-carbon-600">{message}</p> : null}
-          </form>
+        </form>
         </div>
       </section>
     </main>

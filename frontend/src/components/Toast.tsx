@@ -35,13 +35,13 @@ const ToastItem = ({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
     const base = "rounded-xl px-4 py-3 shadow-lg border backdrop-blur-sm animate-in fade-in slide-in-from-top-4 duration-300";
     switch (toast.type) {
       case "success":
-        return `${base} bg-carbon-700/80 border-accent-500/40 text-accent-300`;
+        return `${base} bg-emerald-50 border-emerald-200 text-emerald-700`;
       case "error":
-        return `${base} bg-red-950/80 border-red-500/40 text-red-300`;
+        return `${base} bg-red-50 border-red-200 text-red-700`;
       case "warning":
-        return `${base} bg-yellow-950/80 border-yellow-500/40 text-yellow-300`;
+        return `${base} bg-yellow-50 border-yellow-200 text-yellow-700`;
       case "info":
-        return `${base} bg-carbon-800/80 border-carbon-600/40 text-carbon-200`;
+        return `${base} bg-white/6 border-carbon-200 text-carbon-900`;
       default:
         return base;
     }

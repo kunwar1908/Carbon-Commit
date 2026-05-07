@@ -1,0 +1,44 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#042F2E" stop-opacity="0.92"/>
+      <stop offset="52%" stop-color="#1E3A8A" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#334155" stop-opacity="0.92"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F8FAFC"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" rx="32" fill="url(#bg)"/>
+
+  <rect x="56" y="56" width="526" height="608" rx="30" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.12)"/>
+  <text x="92" y="116" fill="#E2E8F0" font-family="Inter, Arial, sans-serif" font-size="15" letter-spacing="4">CARBON COMMIT</text>
+  <text x="92" y="180" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="52" font-weight="700">Manage campus</text>
+  <text x="92" y="236" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="52" font-weight="700">sustainability logs.</text>
+  <text x="92" y="292" fill="#CFE0D7" font-family="Inter, Arial, sans-serif" font-size="18">Use Supabase Auth to protect the dashboard, limit log entry to authenticated users,</text>
+  <text x="92" y="320" fill="#CFE0D7" font-family="Inter, Arial, sans-serif" font-size="18">and keep the API tied to real user sessions.</text>
+  <rect x="92" y="420" width="192" height="46" rx="23" fill="#0EA5E9"/>
+  <text x="138" y="449" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700">Why it matters</text>
+  <rect x="92" y="498" width="420" height="100" rx="24" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.12)"/>
+  <text x="122" y="540" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700">Secure sign-in flow</text>
+  <text x="122" y="566" fill="#D7EDE7" font-family="Inter, Arial, sans-serif" font-size="14">Authentication panel with clear contrast and a welcome description.</text>
+
+  <rect x="650" y="88" width="574" height="544" rx="30" fill="url(#panel)" stroke="#DDE6E1"/>
+  <text x="688" y="136" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="16" letter-spacing="3">CARBON COMMIT</text>
+  <text x="688" y="186" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="36" font-weight="700">Sign In</text>
+  <text x="688" y="220" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="16">Manage campus sustainability logs</text>
+
+  <rect x="688" y="258" width="502" height="48" rx="24" fill="#F8FAFC" stroke="#D9E2DC"/>
+  <text x="710" y="288" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="14">Email</text>
+  <rect x="688" y="330" width="502" height="48" rx="24" fill="#F8FAFC" stroke="#D9E2DC"/>
+  <text x="710" y="360" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="14">Password</text>
+
+  <rect x="688" y="406" width="502" height="48" rx="24" fill="#06B6D4"/>
+  <text x="902" y="436" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700">Sign In</text>
+
+  <rect x="688" y="482" width="236" height="40" rx="20" fill="#E0F2FE"/>
+  <text x="760" y="508" fill="#075985" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">Toggle Sign Up</text>
+  <rect x="954" y="482" width="236" height="40" rx="20" fill="#E0F2FE"/>
+  <text x="1018" y="508" fill="#075985" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700">Cyan action buttons</text>
+</svg>

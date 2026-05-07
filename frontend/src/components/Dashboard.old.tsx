@@ -121,7 +121,7 @@ const notificationStyles: Record<NotificationTone, { wrapper: string; badge: str
   },
   info: {
     wrapper: "border-carbon-100 bg-white text-carbon-800",
-    badge: "bg-carbon-900 text-white",
+    badge: "bg-white/6 text-carbon-900",
   },
 };
 
@@ -320,7 +320,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(69,114,95,0.34),_transparent_34%),linear-gradient(180deg,#07100f_0%,#11201c_38%,#f3f7f4_38%,#f7faf8_100%)] text-carbon-900">
       <section className="mx-auto flex min-h-screen max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
-        <header className="overflow-hidden rounded-[2.25rem] border border-white/10 bg-carbon-900/88 p-6 text-white shadow-glow backdrop-blur-xl sm:p-8">
+        <header className="overflow-hidden rounded-[2.25rem] border border-white/10 bg-white/5 p-6 text-carbon-900 shadow-glow backdrop-blur-xl sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl space-y-4">
               <div className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.32em] text-carbon-100/75">
@@ -339,25 +339,25 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
               <StatCard label="Leaderboard" value={leaderboard.length} />
             </div>
           </div>
-          <div className="mt-6 flex flex-wrap justify-end gap-3">
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
             <button
               type="button"
               onClick={() => setNotificationPanelOpen((current) => !current)}
-              className="rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+              className="rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-carbon-900 transition hover:bg-white/10"
             >
               Notifications ({visibleNotifications.length})
             </button>
             <button
               type="button"
               onClick={() => setProfileOpen(true)}
-              className="rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+              className="rounded-2xl border border-white/15 bg-accent-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-accent-700"
             >
               Profile
             </button>
             <button
               type="button"
               onClick={() => void onSignOut()}
-              className="rounded-2xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+              className="rounded-2xl border border-white/15 bg-accent-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-accent-700"
             >
               Sign Out
             </button>
@@ -491,7 +491,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-2xl bg-carbon-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-carbon-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="rounded-2xl bg-accent-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-accent-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {submitting ? "Submitting..." : "Record Activity"}
                 </button>
@@ -617,7 +617,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             {dataFlowSteps.map((step, index) => (
               <article key={step.title} className="relative rounded-[1.75rem] border border-carbon-100 bg-carbon-50/70 p-4 shadow-sm">
                 <div className="mb-4 flex items-center justify-between gap-3">
-                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-carbon-900 text-sm font-semibold text-white">
+                  <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-accent-500 text-sm font-semibold text-white">
                     {index + 1}
                   </div>
                   {index < dataFlowSteps.length - 1 ? <span className="text-xs uppercase tracking-[0.28em] text-carbon-500">Flow</span> : null}
@@ -640,7 +640,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             </div>
             <button
               onClick={() => setImportModalOpen(true)}
-              className="rounded-2xl bg-green-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-green-700"
+              className="rounded-2xl bg-accent-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-accent-700"
             >
               + Import CSV
             </button>
@@ -654,7 +654,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                 onClick={() => setActiveOperationsTab(tab as typeof activeOperationsTab)}
                 className={`px-4 py-2 rounded-lg font-medium transition ${
                   activeOperationsTab === tab
-                    ? "bg-carbon-900 text-white"
+                    ? "bg-accent-600 text-white"
                     : "bg-carbon-50 text-carbon-700 hover:bg-carbon-100"
                 }`}
               >
