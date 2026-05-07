@@ -129,16 +129,6 @@ The Carbon Commit interface features a modern dark-themed design with teal/blue 
 The snapshots are stored in [docs/snapshots](docs/snapshots) and are embedded below so the README shows the actual site surfaces instead of just describing them.
 These captures cover the full product surface: authentication, dashboard, operations, analytics, profile settings, and schema design.
 
-### Snapshot Gallery
-
-| Site Area | Snapshot |
-| --- | --- |
-| Authentication screen | ![Carbon Commit authentication screen](docs/snapshots/auth-signin-signup.png) |
-| Dashboard overview | ![Carbon Commit dashboard overview](docs/snapshots/dashboard-overview-home.png) |
-| Activity log / operations history | ![Carbon Commit activity log](docs/snapshots/record-activity-recent-insertions.png) |
-| Profile settings panel | ![Carbon Commit profile panel](docs/snapshots/profile-view.png) |
-| Database schema snapshot | ![Supabase schema snapshot](docs/snapshots/supabase-schema.png) |
-
 ### Full Snapshot Gallery
 
 #### 🔐 Authentication & Auth Flow
@@ -185,7 +175,6 @@ If you want to explore the app, check out the full interface above—every major
 
 ### 🔐 Authentication Screen
 
-![Authentication preview](docs/snapshots/auth-signin-signup.png)
 - Sign In / Sign Up interface with Supabase Auth integration
 - Welcome message and project description panel
 - Email and password inputs with validation
@@ -193,7 +182,6 @@ If you want to explore the app, check out the full interface above—every major
 
 ### 📊 Dashboard Tabs
 
-![Dashboard preview](docs/snapshots/dashboard-overview-home.png)
 The main dashboard is organized into five primary sections accessible via tab navigation:
 
 #### **KPIs (Key Performance Indicators)**
@@ -204,7 +192,6 @@ The main dashboard is organized into five primary sections accessible via tab na
 
 #### **⚙️ Operations Console** 
 
-![Operations preview](docs/snapshots/record-activity-recent-insertions.png)
 - **Carbon Emission Calculation Criteria**: Reference emission factors with formulas
   - Electricity: Units (kWh) × 0.82 kg CO₂/kWh
   - Water: Units (L) × 0.0003 kg CO₂/L
@@ -215,8 +202,6 @@ The main dashboard is organized into five primary sections accessible via tab na
 
 #### **📋 Audit Logs**
 
-![Audit logs viewer](docs/snapshots/audit-logs.png)
-
 - Complete audit trail of all user actions
 - Filtering by user, action type, and date range
 - Reset filters button for quick view refresh
@@ -224,18 +209,12 @@ The main dashboard is organized into five primary sections accessible via tab na
 
 #### **🌍 Footprints (Analytics)**
 
-![Footprints analytics](docs/snapshots/footprints.png)
-
 - Interactive emissions trend chart
 - Section-based views: Transport, Hostel, Facilities
 - Department-wise footprint breakdown
 - Historical trend analysis
 
 #### **📥 Import / 📤 Export**
-
-![CSV import interface](docs/snapshots/import-csv.png)
-
-![Export data interface](docs/snapshots/export-data.png)
 
 - **Import**: CSV bulk upload with inline instructions
   - Format: `DepartmentID, ActivityType, Units, Description, Date`
@@ -247,7 +226,6 @@ The main dashboard is organized into five primary sections accessible via tab na
 
 -### 👤 Profile Panel
 
-![Profile panel preview](docs/snapshots/profile-view.png)
 - User account settings and avatar management
 - Department selection with dropdown (predefined options)
 - Role display
@@ -256,10 +234,6 @@ The main dashboard is organized into five primary sections accessible via tab na
 
 ### 📐 Project Insights
 
-![Project insights documentation](docs/snapshots/insights.png)
-
-![Triggers & automation reference](docs/snapshots/insights-triggers.png)
-
 - Architecture overview with system components
 - Database schema summary
 - Technology stack details
@@ -267,8 +241,6 @@ The main dashboard is organized into five primary sections accessible via tab na
 - Color-coded architecture boxes
 
 ### 📬 Notifications
-
-![Notification centre](docs/snapshots/notification-centre.png)
 
 - Real-time notification center
 - Quota breach alerts
