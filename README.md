@@ -373,6 +373,69 @@ In some environments, the direct Supabase host is not reachable from the local m
 
 The repo includes a Prisma config file at [prisma.config.ts](prisma.config.ts) to support current Prisma CLI behavior.
 
+## Database Design
+
+### Entity-Relationship (ER) Diagram
+
+```mermaid
+erDiagram
+    DEPT_MASTER ||--o{ USER_PROFILES : ""
+    DEPT_MASTER ||--o{ ACTIVITY_LOGS : ""
+    EMISSION_REF ||--o{ ACTIVITY_LOGS : ""
+    USER_PROFILES ||--o{ ACTIVITY_LOGS : ""
+
+    DEPT_MASTER {
+        int dept_id PK
+        string dept_name
+        string dept_code
+        decimal baseline_emission
+        string category
+    }
+
+    EMISSION_REF {
+        int factor_id PK
+        string activity_type
+        string unit
+        decimal co2e_factor
+        string category
+        string description
+    }
+
+    ACTIVITY_LOGS {
+        int log_id PK
+        string user_id FK
+        int dept_id FK
+        int factor_id FK
+        decimal units
+        string description
+        datetime logged_at
+        decimal calculated_co2e
+    }
+
+    USER_PROFILES {
+        string user_id PK
+        string email
+        string name
+        string role
+        int dept_id FK
+        datetime created_at
+    }
+```
+
+**Core Database Entities:**
+
+| Entity | Purpose | Key Relationships |
+|--------|---------|-------------------|
+| **DEPT_MASTER** | Departments with baseline emission targets | One-to-many with USER_PROFILES and ACTIVITY_LOGS |
+| **EMISSION_REF** | Emission factors for carbon calculations (electricity, water, fuel, waste) | One-to-many with ACTIVITY_LOGS |
+| **ACTIVITY_LOGS** | Records of department activities and CO₂e calculations | Links users, departments, and emission factors |
+| **USER_PROFILES** | Authenticated users with department assignments and roles | One-to-many with ACTIVITY_LOGS |
+
+**Field Definitions:**
+- **PK** (Primary Key): Unique identifier for each record
+- **FK** (Foreign Key): Reference to another table's primary key
+- **Types**: int (integer), string (text), decimal (floating-point numbers), datetime (timestamps)
+
 ## Database Models
 
 The Prisma schema defines three main tables used by the dashboard flow:
