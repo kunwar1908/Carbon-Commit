@@ -289,33 +289,34 @@ async function main() {
 
   // Seed sample UserProfiles
   console.log("👤 Seeding sample UserProfiles...");
-  const demoProfiles = [
-    {
-      id: "carbon-admin-1",
-      email: "carbon.admin@tiet.demo",
-      fullName: "Campus Sustainability Admin",
-      role: "ADMIN",
+  const adminProfile: Prisma.UserProfileCreateManyInput = {
+    id: "carbon-admin-1",
+    email: "carbon.admin@tiet.demo",
+    fullName: "Campus Sustainability Admin",
+    role: "ADMIN",
+    isActive: true,
+  };
+
+  const demoManagerProfiles: Prisma.UserProfileCreateManyInput[] = demoDepartments.map((department) => {
+    const record = departmentByName.get(department.name);
+
+    if (!record) {
+      throw new Error(`Missing department seed: ${department.name}`);
+    }
+
+    const slug = slugify(department.name);
+
+    return {
+      id: `${slug}-lead`,
+      email: `${slug}.lead@tiet.demo`,
+      fullName: `${department.name} Lead`,
+      role: "MANAGER",
+      deptId: record.id,
       isActive: true,
-    },
-    ...demoDepartments.map((department) => {
-      const record = departmentByName.get(department.name);
+    };
+  });
 
-      if (!record) {
-        throw new Error(`Missing department seed: ${department.name}`);
-      }
-
-      const slug = slugify(department.name);
-
-      return {
-        id: `${slug}-lead`,
-        email: `${slug}.lead@tiet.demo`,
-        fullName: `${department.name} Lead`,
-        role: "MANAGER" as const,
-        deptId: record.id,
-        isActive: true,
-      };
-    }),
-  ];
+  const demoProfiles: Prisma.UserProfileCreateManyInput[] = [adminProfile, ...demoManagerProfiles];
 
   try {
     await prisma.userProfile.createMany({
@@ -359,7 +360,7 @@ async function main() {
   if (existingDemoLogs === 0) {
     console.log("🧪 Seeding Thapar-inspired activity logs...");
     const demoLogs = departments.flatMap((department, index) => {
-      const profile = demoProfiles.find((entry) => entry.deptId === department.id);
+      const profile = demoManagerProfiles.find((entry) => entry.deptId === department.id);
 
       if (!profile) {
         return [];
