@@ -408,6 +408,10 @@ erDiagram
 - **FK** (Foreign Key): Reference to another table's primary key
 - **Types**: int (integer), string (text), decimal (floating-point numbers), datetime (timestamps)
 
+### Database Schema Snapshot
+
+![Supabase database schema](docs/snapshots/supabase-schema.svg)
+
 ## Database Models
 
 The Prisma schema defines three main tables used by the dashboard flow:
