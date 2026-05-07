@@ -133,43 +133,67 @@ These captures cover the full product surface: authentication, dashboard, operat
 
 | Site Area | Snapshot |
 | --- | --- |
-| Authentication screen | ![Carbon Commit authentication screen](docs/snapshots/auth-screen.svg) |
-| Dashboard overview | ![Carbon Commit dashboard overview](docs/snapshots/dashboard-overview.svg) |
-| Activity log / operations history | ![Carbon Commit activity log](docs/snapshots/activity-log.svg) |
-| Profile settings panel | ![Carbon Commit profile panel](docs/snapshots/profile-panel.svg) |
-| Database schema snapshot | ![Supabase schema snapshot](docs/snapshots/supabase-schema-ssnbnsockfjgsheigkbv.png) |
+| Authentication screen | ![Carbon Commit authentication screen](docs/snapshots/auth-signin-signup.png) |
+| Dashboard overview | ![Carbon Commit dashboard overview](docs/snapshots/dashboard-overview-home.png) |
+| Activity log / operations history | ![Carbon Commit activity log](docs/snapshots/record-activity-recent-insertions.png) |
+| Profile settings panel | ![Carbon Commit profile panel](docs/snapshots/profile-view.png) |
+| Database schema snapshot | ![Supabase schema snapshot](docs/snapshots/supabase-schema.png) |
 
-### Site Surface Index
+### Full Snapshot Gallery
 
-- **Authentication**: sign in and sign up flow with Supabase Auth.
-- **Dashboard**: KPI cards, notifications, data entry, and live rankings.
-- **Operations**: recent insertions, activity criteria, and leaderboard data.
-- **Analytics**: footprint charts and department comparisons.
-- **Audit**: log filtering and review controls.
-- **Import / Export**: CSV upload and dataset download tools.
-- **Profile Settings**: account metadata, avatar upload, and credentials.
-- **Project Insights**: architecture, tables, triggers, and function reference.
+#### 🔐 Authentication & Auth Flow
+| | |
+|---|---|
+| ![Sign in / Sign up](docs/snapshots/auth-signin-signup.png) | ![Authentication flow diagram](docs/snapshots/authflow.png) |
 
-### Coverage Map
+#### 📊 Dashboard & KPIs
+| | |
+|---|---|
+| ![Dashboard overview](docs/snapshots/dashboard-overview-home.png) | ![KPI & Operations console](docs/snapshots/operation-console-kpi.png) |
 
-- **Authentication**: sign in and sign up flow with Supabase Auth.
-- **Dashboard**: KPI cards, notifications, data entry, and live rankings.
-- **Operations**: recent insertions, activity criteria, and leaderboard data.
-- **Analytics**: footprint charts and department comparisons.
-- **Audit**: log filtering and review controls.
-- **Import / Export**: CSV upload and dataset download tools.
-- **Profile Settings**: account metadata, avatar upload, and credentials.
-- **Project Insights**: architecture, tables, triggers, and function reference.
+#### 📋 Operations & Activity Logging
+| | |
+|---|---|
+| ![Activity log & recent insertions](docs/snapshots/record-activity-recent-insertions.png) | ![Leaderboard](docs/snapshots/leadorboard.png) |
 
-If you want a more complete visual tour, open the app and browse the main dashboard tabs plus the profile panel.
+#### 🌍 Analytics & Footprints
+| | |
+|---|---|
+| ![Footprints & emissions analytics](docs/snapshots/footprints.png) | ![System architecture flow](docs/snapshots/system-arch-flow.png) |
+
+#### 📥 Import & 📤 Export
+| | |
+|---|---|
+| ![CSV import interface](docs/snapshots/import-csv.png) | ![Export data options](docs/snapshots/export-data.png) |
+
+#### 📋 Audit & 🔔 Notifications
+| | |
+|---|---|
+| ![Audit logs viewer](docs/snapshots/audit-logs.png) | ![Notification centre](docs/snapshots/notification-centre.png) |
+
+#### 📐 Project Insights & Architecture
+| | |
+|---|---|
+| ![Project insights & documentation](docs/snapshots/insights.png) | ![Triggers & automation reference](docs/snapshots/insights-triggers.png) |
+
+#### 👤 Profile & Settings
+| | |
+|---|---|
+| ![User profile settings](docs/snapshots/profile-view.png) | ![Database schema](docs/snapshots/supabase-schema.png) |
+
+If you want to explore the app, check out the full interface above—every major section is captured in the snapshots.
 
 ### 🔐 Authentication Screen
+
+![Authentication preview](docs/snapshots/auth-signin-signup.png)
 - Sign In / Sign Up interface with Supabase Auth integration
 - Welcome message and project description panel
 - Email and password inputs with validation
 - Responsive design with cyan action buttons
 
 ### 📊 Dashboard Tabs
+
+![Dashboard preview](docs/snapshots/dashboard-overview-home.png)
 The main dashboard is organized into five primary sections accessible via tab navigation:
 
 #### **KPIs (Key Performance Indicators)**
@@ -179,6 +203,8 @@ The main dashboard is organized into five primary sections accessible via tab na
 - Department analytics at a glance
 
 #### **⚙️ Operations Console** 
+
+![Operations preview](docs/snapshots/record-activity-recent-insertions.png)
 - **Carbon Emission Calculation Criteria**: Reference emission factors with formulas
   - Electricity: Units (kWh) × 0.82 kg CO₂/kWh
   - Water: Units (L) × 0.0003 kg CO₂/L
@@ -188,18 +214,29 @@ The main dashboard is organized into five primary sections accessible via tab na
 - **Leaderboard**: Department rankings by emissions with baseline variance indicators
 
 #### **📋 Audit Logs**
+
+![Audit logs viewer](docs/snapshots/audit-logs.png)
+
 - Complete audit trail of all user actions
 - Filtering by user, action type, and date range
 - Reset filters button for quick view refresh
 - Detailed action tracking and timestamps
 
 #### **🌍 Footprints (Analytics)**
+
+![Footprints analytics](docs/snapshots/footprints.png)
+
 - Interactive emissions trend chart
 - Section-based views: Transport, Hostel, Facilities
 - Department-wise footprint breakdown
 - Historical trend analysis
 
 #### **📥 Import / 📤 Export**
+
+![CSV import interface](docs/snapshots/import-csv.png)
+
+![Export data interface](docs/snapshots/export-data.png)
+
 - **Import**: CSV bulk upload with inline instructions
   - Format: `DepartmentID, ActivityType, Units, Description, Date`
   - No header row required
@@ -208,7 +245,9 @@ The main dashboard is organized into five primary sections accessible via tab na
   - Multiple export format options
   - Timestamped file downloads
 
-### 👤 Profile Panel
+-### 👤 Profile Panel
+
+![Profile panel preview](docs/snapshots/profile-view.png)
 - User account settings and avatar management
 - Department selection with dropdown (predefined options)
 - Role display
@@ -216,6 +255,11 @@ The main dashboard is organized into five primary sections accessible via tab na
 - Profile updates trigger dashboard data refresh
 
 ### 📐 Project Insights
+
+![Project insights documentation](docs/snapshots/insights.png)
+
+![Triggers & automation reference](docs/snapshots/insights-triggers.png)
+
 - Architecture overview with system components
 - Database schema summary
 - Technology stack details
@@ -223,6 +267,9 @@ The main dashboard is organized into five primary sections accessible via tab na
 - Color-coded architecture boxes
 
 ### 📬 Notifications
+
+![Notification centre](docs/snapshots/notification-centre.png)
+
 - Real-time notification center
 - Quota breach alerts
 - Activity submission confirmations
