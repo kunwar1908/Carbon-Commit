@@ -4,6 +4,7 @@ import { api } from "../lib/api";
 
 interface NotificationInboxProps {
   accessToken: string;
+  onNotificationRead?: () => void;
 }
 
 const typeColors: Record<string, string> = {
@@ -13,9 +14,10 @@ const typeColors: Record<string, string> = {
   SUCCESS: "bg-emerald-50 text-emerald-700 border border-emerald-200",
 };
 
-export const NotificationInbox: React.FC<NotificationInboxProps> = ({ accessToken }) => {
+export const NotificationInbox: React.FC<NotificationInboxProps> = ({ accessToken, onNotificationRead }) => {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [markingReadId, setMarkingReadId] = useState<number | null>(null);
   const [filterRead, setFilterRead] = useState<"all" | "unread" | "read">("all");
 
   const fetchNotifications = async () => {
@@ -34,6 +36,26 @@ export const NotificationInbox: React.FC<NotificationInboxProps> = ({ accessToke
     fetchNotifications();
   }, [filterRead]);
 
+  const handleMarkAsRead = async (notificationId: number) => {
+    setMarkingReadId(notificationId);
+
+    try {
+      await api.markNotificationRead(accessToken, notificationId);
+      setNotifications((current) =>
+        filterRead === "unread"
+          ? current.filter((notification) => notification.id !== notificationId)
+          : current.map((notification) =>
+              notification.id === notificationId ? { ...notification, isRead: true, readAt: new Date().toISOString() } : notification,
+            ),
+      );
+      onNotificationRead?.();
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    } finally {
+      setMarkingReadId(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <h2 className="text-lg font-bold text-carbon-900">Notification Inbox</h2>
@@ -44,9 +66,9 @@ export const NotificationInbox: React.FC<NotificationInboxProps> = ({ accessToke
             key={filter}
             onClick={() => setFilterRead(filter as "all" | "unread" | "read")}
             className={`px-4 py-2 rounded-lg font-medium transition ${
-              filterRead === filter
+                filterRead === filter
                 ? "bg-accent-500 text-carbon-900"
-                : "bg-white/6 text-carbon-700 hover:bg-white/5"
+                : "bg-carbon-100 text-carbon-700 hover:bg-carbon-200"
             }`}
           >
             {filter.charAt(0).toUpperCase() + filter.slice(1)}
@@ -61,7 +83,7 @@ export const NotificationInbox: React.FC<NotificationInboxProps> = ({ accessToke
       ) : (
         <div className="space-y-3">
           {notifications.map((notification) => (
-            <div key={notification.id} className={`p-4 rounded-2xl border-l-4 ${notification.isRead ? "bg-white/6 border-carbon-200" : "bg-white/8 border-accent-200"}`}>
+            <div key={notification.id} className={`rounded-2xl border border-carbon-200 border-l-4 p-4 shadow-sm ${notification.isRead ? "bg-carbon-50 border-l-carbon-300" : "bg-amber-50 border-l-accent-500"}`}>
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
@@ -82,8 +104,20 @@ export const NotificationInbox: React.FC<NotificationInboxProps> = ({ accessToke
                       </pre>
                     </details>
                   )}
-                  <div className="text-xs text-carbon-400 mt-2">
-                    {new Date(notification.createdAt).toLocaleString()}
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                    <div className="text-xs text-carbon-500">
+                      {new Date(notification.createdAt).toLocaleString()}
+                    </div>
+                    {!notification.isRead && (
+                      <button
+                        type="button"
+                        onClick={() => void handleMarkAsRead(notification.id)}
+                        disabled={markingReadId === notification.id}
+                        className="rounded-lg border border-carbon-300 bg-white px-3 py-1.5 text-xs font-semibold text-carbon-800 transition hover:bg-carbon-100 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {markingReadId === notification.id ? "Marking..." : "Mark as read"}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

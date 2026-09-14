@@ -149,6 +149,45 @@ export const getCurrentUserProfile = async (userId: string, email?: string | nul
   };
 };
 
+export const updateCurrentUserProfile = async (userId: string, deptId: number | null) => {
+  if (deptId !== null) {
+    const department = await prisma.deptMaster.findUnique({
+      where: { id: deptId },
+      select: { id: true, isActive: true },
+    });
+
+    if (!department || !department.isActive) {
+      throw new Error("Department not found or inactive.");
+    }
+  }
+
+  const profile = await prisma.userProfile.update({
+    where: { id: userId },
+    data: { deptId },
+    include: { dept: true },
+  });
+
+  await recordAuditLog({
+    userId,
+    action: "UPDATE_PROFILE_DEPARTMENT",
+    entityType: "user_profiles",
+    entityId: userId,
+    newValues: {
+      deptId: profile.deptId,
+      departmentName: profile.dept?.name ?? null,
+    },
+  });
+
+  return {
+    id: profile.id,
+    email: profile.email,
+    fullName: profile.fullName,
+    role: profile.role,
+    deptId: profile.deptId,
+    departmentName: profile.dept?.name ?? null,
+  } satisfies CurrentUserProfile;
+};
+
 export const recordAuditLog = async (input: {
   userId?: string | null;
   action: string;

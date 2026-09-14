@@ -70,7 +70,7 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ accessToken }) => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-white/8 via-pink-500/5 to-rose-500/4 rounded-2xl shadow-lg p-6 border border-carbon-200 backdrop-blur-sm">
+    <div className="liquid-surface rounded-[1.5rem] p-6">
       <h2 className="text-2xl font-bold text-carbon-900 mb-4">Export Data</h2>
 
       {error && (

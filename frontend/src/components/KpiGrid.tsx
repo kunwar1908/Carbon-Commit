@@ -58,7 +58,7 @@ export const KpiGrid: React.FC<KpiGridProps> = ({ accessToken, refreshKey }) => 
   };
 
   return (
-    <div className="bg-gradient-to-br from-white/8 via-indigo-500/5 to-purple-500/4 rounded-2xl shadow-lg p-6 border border-carbon-200 backdrop-blur-sm">
+    <div className="liquid-surface rounded-[1.5rem] p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-carbon-900">Performance KPIs {role ? `(${role})` : ""}</h2>
         <div className="text-sm">

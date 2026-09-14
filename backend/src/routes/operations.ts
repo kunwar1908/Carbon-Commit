@@ -12,6 +12,7 @@ import {
   dismissAllNotifications,
   dismissNotification,
   getCurrentUserProfile,
+  updateCurrentUserProfile,
   importDepartmentRows,
   listAuditLogs,
   listNotifications,
@@ -45,6 +46,10 @@ const importSchema = z.object({
 
 const exportSchema = z.object({
   format: z.enum(["csv", "pdf"]).default("csv"),
+});
+
+const profileUpdateSchema = z.object({
+  deptId: z.number().int().positive().nullable(),
 });
 
 export const operationsRouter = Router();
@@ -83,6 +88,22 @@ operationsRouter.get("/summary", async (req, res, next) => {
         },
       },
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+operationsRouter.patch("/profile", async (req, res, next) => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: "Unauthorized." });
+      return;
+    }
+
+    const { deptId } = profileUpdateSchema.parse(req.body);
+    await getCurrentUserProfile(req.user.id, req.user.email);
+    const profile = await updateCurrentUserProfile(req.user.id, deptId);
+    res.json({ data: profile });
   } catch (error) {
     next(error);
   }

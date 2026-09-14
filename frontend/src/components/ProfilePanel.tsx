@@ -1,6 +1,8 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
+import { api } from "../lib/api";
+import type { ReferenceDepartment } from "../types";
 
 type ProfilePanelProps = {
   session: Session;
@@ -13,20 +15,6 @@ const getMetadataValue = (metadata: Record<string, unknown> | undefined, key: st
   const value = metadata?.[key];
   return typeof value === "string" ? value : "";
 };
-
-const departmentOptions = [
-  "Civil Engineering",
-  "Mechanical Engineering",
-  "Electrical Engineering",
-  "Chemical Engineering",
-  "Computer Science",
-  "Electronics Engineering",
-  "Biotechnology",
-  "Architecture",
-  "Administration",
-  "Facilities",
-  "Operations",
-];
 
 const titleOptions = [
   "Faculty",
@@ -54,7 +42,8 @@ const organizationOptions = [
 export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfilePanelProps) => {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [fullName, setFullName] = useState("");
-  const [department, setDepartment] = useState("");
+  const [departmentId, setDepartmentId] = useState<number | "">("");
+  const [departments, setDepartments] = useState<ReferenceDepartment[]>([]);
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [title, setTitle] = useState("");
@@ -76,9 +65,19 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
 
     const metadata = (session.user.user_metadata ?? {}) as Record<string, unknown>;
 
+    const loadProfileData = async () => {
+      const [referenceData, summary] = await Promise.all([
+        api.getReferenceData(session.access_token),
+        api.getOperationsSummary(session.access_token),
+      ]);
+
+      setDepartments(referenceData.departments);
+      setDepartmentId(summary.profile.deptId ?? "");
+    };
+
     setFullName(getMetadataValue(metadata, "full_name"));
     setAvatarUrl(getMetadataValue(metadata, "avatar_url"));
-    setDepartment(getMetadataValue(metadata, "department"));
+    setDepartmentId("");
     setAddress(getMetadataValue(metadata, "address"));
     setPhone(getMetadataValue(metadata, "phone"));
     setTitle(getMetadataValue(metadata, "title"));
@@ -90,6 +89,9 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
     setMessage(null);
     setError(null);
     setSaving(false);
+    void loadProfileData().catch((loadError) => {
+      setError(loadError instanceof Error ? loadError.message : "Failed to load departments.");
+    });
   }, [open, session]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -108,11 +110,12 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
     setError(null);
     setMessage(null);
 
+    const selectedDepartment = departments.find((option) => option.id === departmentId);
     const updatePayload: Parameters<typeof supabase.auth.updateUser>[0] = {
       data: {
         avatar_url: avatarUrl.trim(),
         full_name: fullName.trim(),
-        department: department.trim(),
+        department: selectedDepartment?.name ?? "",
         address: address.trim(),
         phone: phone.trim(),
         title: title.trim(),
@@ -133,6 +136,14 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
 
     if (updateError) {
       setError(updateError.message);
+      setSaving(false);
+      return;
+    }
+
+    try {
+      await api.updateProfileDepartment(departmentId === "" ? null : departmentId, session.access_token);
+    } catch (profileError) {
+      setError(profileError instanceof Error ? profileError.message : "Failed to update department.");
       setSaving(false);
       return;
     }
@@ -194,7 +205,7 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 px-4 py-4 backdrop-blur-sm sm:px-6 lg:px-8">
-      <aside className="ml-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-[2rem] border border-carbon-200 bg-gradient-to-br from-white/8 via-teal-500/5 to-cyan-500/4 text-carbon-900 shadow-2xl">
+      <aside className="liquid-shell ml-auto flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-[2rem] text-carbon-900 shadow-2xl">
         <header className="flex items-start justify-between gap-4 border-b border-carbon-200 px-6 py-5 sm:px-8">
           <div className="flex items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/10 text-lg font-semibold text-white">
@@ -271,8 +282,8 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
                 <label>
                     <span className="mb-2 block text-sm font-medium text-white/90">Department</span>
                   <select
-                    value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
+                    value={departmentId}
+                    onChange={(e) => setDepartmentId(e.target.value ? Number(e.target.value) : "")}
                       className="w-full rounded-2xl border border-white/20 bg-white/90 px-4 py-3 pr-10 text-sm text-carbon-900 outline-none transition focus:border-white/40 appearance-none cursor-pointer"
                     style={{
                       backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`,
@@ -284,9 +295,9 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
                     }}
                   >
                       <option value="" className="bg-white text-carbon-900">Select department</option>
-                      {departmentOptions.map((opt) => (
-                        <option key={opt} value={opt} className="bg-white text-carbon-900">
-                          {opt}
+                      {departments.map((departmentOption) => (
+                        <option key={departmentOption.id} value={departmentOption.id} className="bg-white text-carbon-900">
+                          {departmentOption.name}
                         </option>
                       ))}
                   </select>

@@ -63,7 +63,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({ accessToken, isOpen, o
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4 py-4 backdrop-blur-sm">
-      <div className="bg-gradient-to-br from-white/8 via-blue-500/5 to-cyan-500/4 rounded-3xl shadow-2xl p-8 max-w-md w-full mx-4 border border-carbon-200 text-carbon-900 animate-in fade-in zoom-in-95 duration-300">
+      <div className="liquid-surface mx-4 w-full max-w-md rounded-[1.75rem] p-8 text-carbon-900 shadow-2xl animate-in fade-in zoom-in-95 duration-300">
         <h2 className="text-2xl font-bold text-carbon-900 mb-4">Import Activity Logs</h2>
 
         {result ? (

@@ -3,7 +3,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { createActivityLog } from "../services/activity.service.js";
 import { getAnalytics, getLeaderboard, listReferenceData } from "../services/activity.service.js";
-import { buildCsvReport, buildFootprintSections, buildPdfReport, buildRoleKpis, dismissAllNotifications, dismissNotification, getCurrentUserProfile, importDepartmentRows, listAuditLogs, listNotifications, markNotificationRead, normalizeActivityImportRows, parseCsvRows, recordAuditLog, createNotifications, } from "../services/operations.service.js";
+import { buildCsvReport, buildFootprintSections, buildPdfReport, buildRoleKpis, dismissAllNotifications, dismissNotification, getCurrentUserProfile, updateCurrentUserProfile, importDepartmentRows, listAuditLogs, listNotifications, markNotificationRead, normalizeActivityImportRows, parseCsvRows, recordAuditLog, createNotifications, } from "../services/operations.service.js";
 const auditQuerySchema = z.object({
     entityType: z.string().trim().optional(),
     entityId: z.string().trim().optional(),
@@ -24,6 +24,9 @@ const importSchema = z.object({
 });
 const exportSchema = z.object({
     format: z.enum(["csv", "pdf"]).default("csv"),
+});
+const profileUpdateSchema = z.object({
+    deptId: z.number().int().positive().nullable(),
 });
 export const operationsRouter = Router();
 operationsRouter.get("/summary", async (req, res, next) => {
@@ -57,6 +60,21 @@ operationsRouter.get("/summary", async (req, res, next) => {
                 },
             },
         });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+operationsRouter.patch("/profile", async (req, res, next) => {
+    try {
+        if (!req.user) {
+            res.status(401).json({ error: "Unauthorized." });
+            return;
+        }
+        const { deptId } = profileUpdateSchema.parse(req.body);
+        await getCurrentUserProfile(req.user.id, req.user.email);
+        const profile = await updateCurrentUserProfile(req.user.id, deptId);
+        res.json({ data: profile });
     }
     catch (error) {
         next(error);

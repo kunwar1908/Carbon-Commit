@@ -32,7 +32,7 @@ const ToastItem = ({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
   }, [toast, onRemove]);
 
   const getStyles = () => {
-    const base = "rounded-xl px-4 py-3 shadow-lg border backdrop-blur-sm animate-in fade-in slide-in-from-top-4 duration-300";
+    const base = "liquid-surface rounded-xl px-4 py-3 shadow-lg animate-in fade-in slide-in-from-top-4 duration-300";
     switch (toast.type) {
       case "success":
         return `${base} bg-emerald-50 border-emerald-200 text-emerald-700`;

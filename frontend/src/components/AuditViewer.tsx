@@ -49,7 +49,7 @@ export const AuditViewer: React.FC<AuditViewerProps> = ({ accessToken }) => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-white/8 via-red-500/5 to-rose-500/4 rounded-2xl shadow-lg p-6 border border-carbon-200 backdrop-blur-sm">
+    <div className="liquid-surface rounded-[1.5rem] p-6">
       <h2 className="text-2xl font-bold text-carbon-900 mb-4">Audit Log Viewer</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">

@@ -34,6 +34,11 @@ async function request<T>(path: string, accessToken?: string, init?: RequestInit
 
 export const api = {
   getReferenceData: (accessToken: string) => request<ReferenceData>("/analytics/reference-data", accessToken),
+  updateProfileDepartment: (deptId: number | null, accessToken: string) =>
+    request<OperationsSummary["profile"]>("/operations/profile", accessToken, {
+      method: "PATCH",
+      body: JSON.stringify({ deptId }),
+    }),
   getAnalytics: (accessToken: string) => request<DepartmentAnalytics[]>("/analytics", accessToken),
   getLeaderboard: (accessToken: string) => request<LeaderboardEntry[]>("/leaderboard", accessToken),
   submitLog: (body: LogSubmission, accessToken: string) =>

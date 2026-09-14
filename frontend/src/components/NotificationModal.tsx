@@ -5,19 +5,20 @@ type NotificationModalProps = {
   open: boolean;
   onClose: () => void;
   accessToken: string;
+  onNotificationRead?: () => void;
 };
 
-export const NotificationModal = ({ open, onClose, accessToken }: NotificationModalProps) => {
+export const NotificationModal = ({ open, onClose, accessToken, onNotificationRead }: NotificationModalProps) => {
   if (!open) {
     return null;
   }
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 px-4 py-4 backdrop-blur-sm sm:px-6 lg:px-8">
-      <aside className="ml-auto flex h-full w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-carbon-200 bg-gradient-to-br from-white/8 via-violet-500/5 to-indigo-500/4 text-carbon-900 shadow-2xl animate-in fade-in slide-in-from-right-4 duration-300">
+      <aside className="liquid-shell ml-auto flex h-full w-full max-w-2xl flex-col overflow-hidden rounded-3xl text-carbon-900 shadow-2xl animate-in fade-in slide-in-from-right-4 duration-300">
         <header className="flex items-start justify-between gap-4 border-b border-carbon-200 px-6 py-5 sm:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-carbon-200 bg-white/6 text-lg font-semibold text-carbon-900">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-carbon-200 bg-carbon-50 text-lg font-semibold text-carbon-900">
               📢
             </div>
             <div>
@@ -29,14 +30,14 @@ export const NotificationModal = ({ open, onClose, accessToken }: NotificationMo
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-carbon-200 bg-white/6 px-4 py-2 text-sm font-medium transition hover:bg-white/5"
+            className="rounded-full border border-carbon-200 bg-carbon-50 px-4 py-2 text-sm font-medium transition hover:bg-carbon-100"
           >
             Close
           </button>
         </header>
 
         <div className="flex-1 overflow-y-auto px-6 py-6 sm:px-8">
-          <NotificationInbox accessToken={accessToken} />
+          <NotificationInbox accessToken={accessToken} {...(onNotificationRead ? { onNotificationRead } : {})} />
         </div>
       </aside>
     </div>

@@ -96,7 +96,7 @@ const roadmapItems = [
 export const ProjectInsights = () => {
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-carbon-200 bg-gradient-to-br from-slate-50/6 via-cyan-500/5 to-teal-500/4 p-8 backdrop-blur-sm">
+      <div className="liquid-surface rounded-[1.5rem] p-8">
         <h2 className="text-3xl font-bold text-accent-600 mb-2">📊 Project Architecture & Insights</h2>
         <p className="text-carbon-700 text-lg">A documentation-style view of the schema, triggers, functions, and demo coverage behind Carbon Commit.</p>
       </div>

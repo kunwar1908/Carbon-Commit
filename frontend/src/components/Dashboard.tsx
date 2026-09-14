@@ -251,11 +251,11 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
     <div className="min-h-screen bg-gradient-to-br from-teal-950/40 via-blue-900/30 to-slate-800/40 text-white">
       <ToastContainer toasts={toasts} onRemove={removeToast} />
       {/* Header */}
-      <header className="border-b border-carbon-200/30 bg-white/6 backdrop-blur-md shadow-lg sticky top-0 z-40">
+      <header className="sticky top-0 z-40 border-b border-white/40 bg-carbon-50/30 shadow-lg backdrop-blur-md">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-accent-400 to-accent-500 flex items-center justify-center text-carbon-900 font-bold">
+              <div className="liquid-mark flex h-10 w-10 items-center justify-center bg-gradient-to-br from-accent-400 to-accent-500 font-bold text-carbon-900">
                 CC
               </div>
               <div>
@@ -274,7 +274,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
               <div className="flex gap-2 relative">
                 <button
                   onClick={() => setNotificationPanelOpen(!notificationPanelOpen)}
-                  className="relative px-3 py-2 rounded-2xl bg-white/6 text-carbon-900 hover:bg-white/5 font-medium text-sm transition-all duration-200 border border-carbon-200"
+                  className="liquid-control relative rounded-full px-4 py-2 text-sm font-medium text-carbon-900 transition-all duration-200"
                 >
                   🔔 Notifications
                   {notificationCount > 0 && (
@@ -285,13 +285,13 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                 </button>
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
-                  className="px-3 py-2 rounded-2xl bg-white/6 text-carbon-900 hover:bg-white/5 font-medium text-sm transition-all duration-200 border border-carbon-200"
+                  className="liquid-control rounded-full px-4 py-2 text-sm font-medium text-carbon-900 transition-all duration-200"
                 >
                   👤 Profile
                 </button>
                 <button
                   onClick={() => void onSignOut()}
-                  className="px-3 py-2 rounded-2xl bg-white/6 text-carbon-900 hover:bg-white/5 font-medium text-sm transition-all duration-200 border border-carbon-200"
+                  className="liquid-control rounded-full px-4 py-2 text-sm font-medium text-carbon-900 transition-all duration-200"
                 >
                   Sign Out
                 </button>
@@ -313,20 +313,25 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
       />
 
       {/* Notification Modal */}
-      <NotificationModal open={notificationPanelOpen} onClose={() => setNotificationPanelOpen(false)} accessToken={session.access_token} />
+      <NotificationModal
+        open={notificationPanelOpen}
+        onClose={() => setNotificationPanelOpen(false)}
+        accessToken={session.access_token}
+        onNotificationRead={() => setNotificationCount((current) => Math.max(0, current - 1))}
+      />
 
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Page Navigation */}
-        <div className="mb-6 flex gap-2 border-b border-carbon-700 overflow-x-auto pb-4">
+        <div className="liquid-menu mb-6 flex gap-2 overflow-x-auto rounded-full p-2">
           {(["dashboard", "operations", "insights"] as const).map((page) => (
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`px-4 py-3 font-medium border-b-2 transition-all duration-300 whitespace-nowrap ${
+              className={`liquid-tab whitespace-nowrap px-4 py-2.5 font-medium ${
                 currentPage === page
-                  ? "border-accent-600 text-white bg-accent-600 rounded-t-lg"
-                  : "border-transparent text-white/70 hover:text-white"
+                  ? "liquid-tab-active"
+                  : ""
               }`}
             >
               {page === "dashboard" && "📊 Dashboard"}
@@ -355,7 +360,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             </div>
 
             {/* Emission Criteria */}
-            <div className="rounded-2xl border border-carbon-500/10 bg-gradient-to-br from-white/8 via-blue-500/5 to-teal-500/4 p-6 shadow-lg backdrop-blur-sm hover:border-accent-200/30 transition-colors duration-300">
+            <div className="liquid-surface rounded-[1.5rem] p-6 transition-colors duration-300 hover:border-accent-200/70">
               <h2 className="text-xl font-bold text-carbon-900 mb-4">📐 Carbon Emission Calculation Criteria</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {emissionCriteria.map((item) => (
@@ -369,7 +374,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             </div>
 
             {/* Data Entry Form */}
-            <div className="rounded-2xl border border-carbon-500/10 bg-white/5 p-6 shadow-lg backdrop-blur-sm">
+            <div className="liquid-surface rounded-[1.5rem] p-6">
               <h2 className="text-xl font-bold text-carbon-900 mb-4">📝 Record Activity</h2>
               <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
@@ -443,7 +448,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             </div>
 
             {/* Recent Logs - Paginated */}
-            <div className="rounded-2xl border border-carbon-500/10 bg-gradient-to-br from-white/8 via-rose-500/5 to-orange-500/4 p-6 shadow-lg backdrop-blur-sm">
+            <div className="liquid-surface rounded-[1.5rem] p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-carbon-900">📋 Recent Insertions</h2>
                 <button
@@ -508,7 +513,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             </div>
 
             {/* Leaderboard - Paginated */}
-            <div className="rounded-2xl border border-carbon-500/10 bg-gradient-to-br from-white/8 via-yellow-500/5 to-amber-500/4 p-6 shadow-lg backdrop-blur-sm">
+            <div className="liquid-surface rounded-[1.5rem] p-6">
               <h2 className="text-xl font-bold text-carbon-900 mb-4">🏆 Leaderboard</h2>
               {leaderboard.length === 0 ? (
                 <p className="text-carbon-300 text-center py-8">No leaderboard data</p>
@@ -538,15 +543,15 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
         {currentPage === "operations" && (
           <div className="space-y-6 animate-in fade-in duration-300">
             {/* Operations Tabs */}
-            <div className="flex gap-2 border-b border-carbon-600/30 overflow-x-auto pb-4">
+            <div className="liquid-menu flex gap-2 overflow-x-auto rounded-full p-2">
               {(["kpi", "audit", "footprint", "export", "import"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveOperationsTab(tab)}
-                  className={`px-4 py-2 font-medium whitespace-nowrap border-b-2 transition-all duration-300 ${
+                  className={`liquid-tab whitespace-nowrap px-4 py-2.5 font-medium ${
                     activeOperationsTab === tab
-                      ? "border-accent-600 text-white bg-accent-600 font-semibold rounded-t-lg"
-                      : "border-transparent text-white/70 hover:text-white"
+                      ? "liquid-tab-active font-semibold"
+                      : ""
                   }`}
                 >
                   {tab === "kpi" && "📊 KPIs"}
@@ -558,7 +563,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
               ))}
             </div>
 
-            <div className="bg-gradient-to-br from-white/8 via-violet-500/5 to-pink-500/4 rounded-2xl border border-carbon-200 shadow-lg p-6 backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="liquid-surface rounded-[1.5rem] border-carbon-200 p-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
               {activeOperationsTab === "kpi" && <KpiGrid accessToken={session.access_token} refreshKey={operationsRefreshKey} />}
               {activeOperationsTab === "audit" && <AuditViewer accessToken={session.access_token} />}
               
@@ -623,7 +628,7 @@ const StatCard = ({ label, value, color }: { label: string; value: number; color
   const accent = accentClasses[color] ?? accentClasses.blue;
 
   return (
-    <div className={`rounded-2xl border bg-gradient-to-br from-white/8 via-cyan-500/5 to-blue-500/4 p-6 shadow-lg backdrop-blur-sm hover:scale-105 transition-all duration-300 transform border-carbon-200`}>
+    <div className="liquid-surface rounded-[1.5rem] p-6 transition-all duration-300 hover:-translate-y-1">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium opacity-90 text-carbon-700">{label}</p>
         <div className={`h-9 w-9 rounded-lg bg-gradient-to-br ${accent} flex items-center justify-center`}>
