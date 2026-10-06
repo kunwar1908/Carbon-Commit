@@ -522,13 +522,19 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                   {leaderboard.slice(0, 10).map((entry) => (
                     <div key={entry.deptId} className="flex items-center justify-between p-3 bg-white/6 rounded-lg border border-carbon-200 hover:border-accent-200 transition-all duration-300 hover:bg-white/5">
                       <div className="flex items-center gap-3">
-                        <span className="text-lg font-bold text-carbon-600 w-6">#{entry.rank}</span>
+                        <span className="text-lg font-bold text-carbon-900 w-6">#{entry.rank}</span>
                         <div>
-                          <p className="font-semibold text-carbon-800">{entry.deptName}</p>
-                          <p className="text-xs text-carbon-600">{entry.totalEmissions.toFixed(2)} kg CO₂</p>
+                          <p className="font-semibold text-carbon-900">{entry.deptName}</p>
+                          <p className="text-xs text-carbon-700">{entry.totalEmissions.toFixed(2)} kg CO₂</p>
                         </div>
                       </div>
-                      <div className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-300 ${entry.exceedsBaseline ? "bg-red-50 text-red-700 border border-red-200" : "bg-accent-50 text-accent-700 border border-accent-200"}`}>
+                      <div
+                        className={`rounded-lg border px-3 py-1 text-sm font-semibold transition-colors duration-300 ${
+                          entry.exceedsBaseline
+                            ? "border-red-300 bg-red-100 text-red-800"
+                            : "border-emerald-300 bg-emerald-100 text-emerald-800"
+                        }`}
+                      >
                         {entry.exceedsBaseline ? "Over" : "Under"}
                       </div>
                     </div>

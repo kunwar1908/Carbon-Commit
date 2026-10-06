@@ -290,7 +290,7 @@ Important frontend pieces:
 
 - [frontend/src/App.tsx](frontend/src/App.tsx) renders the protected app shell.
 - [frontend/src/components/ProtectedDashboard.tsx](frontend/src/components/ProtectedDashboard.tsx) loads the session and gates access.
-- [frontend/src/components/AuthScreen.tsx](frontend/src/components/AuthScreen.tsx) handles sign in and sign up.
+- [frontend/src/components/AuthScreen.tsx](frontend/src/components/AuthScreen.tsx) handles email/password sign in and sign up.
 - [frontend/src/components/Dashboard.tsx](frontend/src/components/Dashboard.tsx) contains the main sustainability dashboard.
 - [frontend/src/lib/api.ts](frontend/src/lib/api.ts) wraps authenticated API calls.
 - [frontend/src/lib/supabase.ts](frontend/src/lib/supabase.ts) creates the browser Supabase client.

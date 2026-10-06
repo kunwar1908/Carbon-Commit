@@ -17,20 +17,24 @@ export const AuthScreen = ({ onAuthenticated }: AuthScreenProps) => {
     setBusy(true);
     setMessage(null);
 
-    const result =
-      mode === "sign-in"
-        ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password });
-    const { error } = result;
+    try {
+      const result =
+        mode === "sign-in"
+          ? await supabase.auth.signInWithPassword({ email, password })
+          : await supabase.auth.signUp({ email, password });
+      const { error } = result;
 
-    if (error) {
-      setMessage(error.message);
-    } else {
-      setMessage(mode === "sign-in" ? "Signed in successfully." : "Check your email to confirm your account.");
-      onAuthenticated();
+      if (error) {
+        setMessage(error.message);
+      } else {
+        setMessage(mode === "sign-in" ? "Signed in successfully." : "Check your email to confirm your account.");
+        onAuthenticated();
+      }
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setBusy(false);
     }
-
-    setBusy(false);
   };
 
   return (

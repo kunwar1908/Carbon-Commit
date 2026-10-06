@@ -21,3 +21,4 @@ export const createApp = () => {
     app.use(errorHandler);
     return app;
 };
+//npm --prefix backend run dev & npm --prefix frontend run dev

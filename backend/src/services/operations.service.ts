@@ -727,192 +727,134 @@ export const buildCsvReport = (snapshot: OperationsSnapshot) => {
 
 export const buildPdfReport = async (snapshot: OperationsSnapshot) =>
   new Promise<Buffer>((resolve, reject) => {
-    const document = new PDFDocument({ margin: 40, size: "A4" });
+    const document = new PDFDocument({ margin: 40, size: "A4", bufferPages: true });
     const chunks: Buffer[] = [];
+    const pageBottom = 800;
+    const contentWidth = 515;
 
     document.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
     document.on("end", () => resolve(Buffer.concat(chunks)));
     document.on("error", reject);
 
-    // ===== HEADER SECTION =====
-    document.fontSize(32).font("Helvetica-Bold").fillColor("#10b981").text("Carbon Commit", { align: "center" });
-    document.fontSize(11).font("Helvetica").fillColor("#2d5a4c").text("Campus Sustainability & Emissions Report", { align: "center" });
-    document.fontSize(9).fillColor("#666").text(`Report Generated: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`, { align: "center" });
-    document.moveDown(0.3);
-    
-    // Decorative line
-    document.fillColor("#10b981");
-    document.moveTo(40, document.y).lineTo(555, document.y).stroke();
-    document.moveDown(0.5);
-
-    // ===== PROFILE SECTION =====
-    document.fontSize(12).font("Helvetica-Bold").fillColor("#2d5a4c").text("📋 User Profile");
-    document.fontSize(9).font("Helvetica").fillColor("#333");
-    
-    const profileBox = {
-      x: 40,
-      y: document.y,
-      width: 515,
-      height: 65,
+    const safeText = (value: string) => value.replace(/[^\x20-\x7E]/g, "");
+    const addSectionHeading = (title: string) => {
+      if (document.y > pageBottom - 45) document.addPage();
+      document.fontSize(12).font("Helvetica-Bold").fillColor("#2d5a4c").text(title);
+      document.moveDown(0.35);
     };
-    document.fillColor("#f0f9f7");
-    document.rect(profileBox.x, profileBox.y, profileBox.width, profileBox.height).fill();
-    document.fillColor("#10b981");
-    document.rect(profileBox.x, profileBox.y, profileBox.width, profileBox.height).stroke();
-    
-    document.fillColor("#333");
-    document.text(`Email: ${snapshot.profile.email}`, 50, profileBox.y + 8);
-    document.text(`Role: ${snapshot.profile.role}  |  Department: ${snapshot.profile.departmentName ?? "Campus-wide"}`, 50, document.y);
-    document.text(`Total Submissions: ${snapshot.auditLogs.length}`, 50, document.y);
-    document.moveDown(4.5);
 
-    // ===== KPIs SECTION =====
-    document.fontSize(12).font("Helvetica-Bold").fillColor("#2d5a4c").text("📊 Key Performance Indicators");
-    document.moveDown(0.2);
-    
-    // Calculate columns for KPIs (2 per row)
-    const kpisPerRow = 2;
-    const boxWidth = (515 - 10) / kpisPerRow;
-    const boxHeight = 45;
-    
-    for (let i = 0; i < snapshot.roleKpis.length; i += kpisPerRow) {
-      const row = snapshot.roleKpis.slice(i, i + kpisPerRow);
-      
-      row.forEach((kpi, colIndex) => {
-        const boxX = 40 + colIndex * (boxWidth + 10);
-        const boxY = document.y;
-        
+    document.fontSize(28).font("Helvetica-Bold").fillColor("#059669").text("Carbon Commit", { align: "center" });
+    document.fontSize(11).font("Helvetica").fillColor("#2d5a4c").text("Campus Sustainability and Emissions Report", { align: "center" });
+    document.fontSize(9).fillColor("#666").text(`Report generated: ${new Date().toLocaleString()}`, { align: "center" });
+    document.moveDown(0.6);
+    document.strokeColor("#10b981").lineWidth(1.5).moveTo(40, document.y).lineTo(555, document.y).stroke();
+    document.moveDown(0.8);
+
+    addSectionHeading("User Profile");
+    const profileY = document.y;
+    document.fillColor("#f0f9f7").strokeColor("#10b981").lineWidth(1);
+    document.roundedRect(40, profileY, contentWidth, 62, 5).fillAndStroke();
+    document.fontSize(9).font("Helvetica").fillColor("#333");
+    document.text(`Email: ${safeText(snapshot.profile.email)}`, 52, profileY + 10, { width: 490 });
+    document.text(`Role: ${snapshot.profile.role}`, 52, profileY + 27);
+    document.text(`Department: ${safeText(snapshot.profile.departmentName ?? "Campus-wide")}`, 220, profileY + 27, { width: 320 });
+    document.text(`Recent audit entries: ${snapshot.auditLogs.length}`, 52, profileY + 44);
+    document.y = profileY + 78;
+
+    addSectionHeading("Key Performance Indicators");
+    const kpiWidth = 247;
+    for (let index = 0; index < snapshot.roleKpis.length; index += 2) {
+      if (document.y > pageBottom - 75) document.addPage();
+      const rowY = document.y;
+      snapshot.roleKpis.slice(index, index + 2).forEach((kpi, column) => {
+        const x = 40 + column * 268;
         const bgColor = kpi.tone === "success" ? "#d1fae5" : kpi.tone === "critical" ? "#fee2e2" : kpi.tone === "warning" ? "#fef3c7" : "#f3f4f6";
         const borderColor = kpi.tone === "success" ? "#10b981" : kpi.tone === "critical" ? "#ef4444" : kpi.tone === "warning" ? "#f59e0b" : "#9ca3af";
-        
-        document.fillColor(bgColor);
-        document.rect(boxX, boxY, boxWidth - 5, boxHeight).fill();
-        document.strokeColor(borderColor);
-        document.lineWidth(1.5);
-        document.rect(boxX, boxY, boxWidth - 5, boxHeight).stroke();
-        
-        document.fillColor("#000");
-        document.fontSize(9).font("Helvetica-Bold").text(kpi.label, boxX + 8, boxY + 5, { width: boxWidth - 16 });
-        document.fontSize(12).font("Helvetica-Bold").fillColor(borderColor).text(kpi.value, boxX + 8, boxY + 18, { width: boxWidth - 16 });
-        document.fontSize(7).font("Helvetica").fillColor("#666").text(kpi.detail, boxX + 8, boxY + 32, { width: boxWidth - 16 });
+        document.fillColor(bgColor).strokeColor(borderColor).lineWidth(1);
+        document.roundedRect(x, rowY, kpiWidth, 56, 5).fillAndStroke();
+        document.fontSize(8).font("Helvetica-Bold").fillColor("#111827").text(safeText(kpi.label), x + 9, rowY + 7, { width: kpiWidth - 18 });
+        document.fontSize(12).fillColor(borderColor).text(safeText(kpi.value), x + 9, rowY + 20, { width: kpiWidth - 18 });
+        document.fontSize(7).font("Helvetica").fillColor("#4b5563").text(safeText(kpi.detail), x + 9, rowY + 38, { width: kpiWidth - 18 });
       });
-      
-      if (i + kpisPerRow < snapshot.roleKpis.length) {
-        document.moveDown(3.2);
-      }
+      document.y = rowY + 68;
     }
-    document.moveDown(3);
 
-    // ===== FOOTPRINT SECTION =====
-    document.fontSize(12).font("Helvetica-Bold").fillColor("#2d5a4c").text("🌍 Emissions Footprint Analysis");
-    document.moveDown(0.2);
-    
+    addSectionHeading("Emissions Footprint Analysis");
     for (const section of [snapshot.footprints.transport, snapshot.footprints.hostel]) {
-      const percentUsed = (section.totalEmissions / section.baseline) * 100;
+      if (document.y > pageBottom - 125) document.addPage();
+      const percentUsed = section.baseline > 0 ? (section.totalEmissions / section.baseline) * 100 : 0;
       const barWidth = 350;
-      const filledWidth = (percentUsed / 100) * barWidth;
-      const barColor = percentUsed > 100 ? "#ef4444" : percentUsed > 80 ? "#f59e0b" : "#10b981";
-      
-      document.fontSize(10).font("Helvetica-Bold").fillColor("#2d5a4c").text(`${section.label}`);
-      document.fontSize(8).font("Helvetica").fillColor("#666");
-      document.text(`${section.totalEmissions.toFixed(2)} kg CO₂ / ${section.baseline.toFixed(2)} kg baseline (${percentUsed.toFixed(1)}%)`, { indent: 20 });
-      
-      // Progress bar background
-      document.fillColor("#e5e7eb");
-      document.rect(60, document.y, barWidth, 12).fill();
-      
-      // Progress bar filled
-      document.fillColor(barColor);
-      document.rect(60, document.y, Math.min(filledWidth, barWidth), 12).fill();
-      
-      // Percentage text on bar
-      document.fontSize(7).font("Helvetica-Bold").fillColor("#fff");
-      document.text(`${percentUsed.toFixed(1)}%`, 65, document.y + 2, { width: barWidth - 10 });
-      
-      document.moveDown(1.2);
-      
-      // Department breakdown
+      const barY = document.y + 28;
+      const filledWidth = Math.min(Math.max(percentUsed, 0) / 100, 1) * barWidth;
+      const barColor = percentUsed > 100 ? "#dc2626" : percentUsed > 80 ? "#d97706" : "#059669";
+      document.fontSize(10).font("Helvetica-Bold").fillColor("#2d5a4c").text(safeText(section.label));
+      document.fontSize(8).font("Helvetica").fillColor("#555").text(`${section.totalEmissions.toFixed(2)} kg CO2 / ${section.baseline.toFixed(2)} kg baseline (${percentUsed.toFixed(1)}%)`);
+      document.fillColor("#e5e7eb").roundedRect(60, barY, barWidth, 12, 3).fill();
+      document.fillColor(barColor).roundedRect(60, barY, filledWidth, 12, 3).fill();
+      document.fontSize(7).font("Helvetica-Bold").fillColor("#fff").text(`${percentUsed.toFixed(1)}%`, 65, barY + 2, { width: barWidth - 10 });
+      document.y = barY + 21;
       document.fontSize(8).font("Helvetica").fillColor("#555");
-      for (const dept of section.departments.slice(0, 4)) {
-        document.text(`  • ${dept.name}: ${dept.totalEmissions.toFixed(2)} kg`, { indent: 30 });
-      }
-      
+      section.departments.slice(0, 4).forEach((dept) => {
+        document.text(`- ${safeText(dept.name)}: ${dept.totalEmissions.toFixed(2)} kg CO2`, 60);
+      });
       if (section.departments.length > 4) {
-        document.fontSize(7).fillColor("#999");
-        document.text(`  ... and ${section.departments.length - 4} more departments`, { indent: 30 });
+        document.fontSize(7).fillColor("#777").text(`... and ${section.departments.length - 4} more departments`, 60);
       }
-      
-      document.moveDown(0.5);
+      document.moveDown(0.6);
     }
-    document.moveDown(0.3);
 
-    // ===== NOTIFICATIONS SECTION =====
     if (snapshot.notifications.length > 0) {
-      document.fontSize(12).font("Helvetica-Bold").fillColor("#2d5a4c").text("🔔 Recent Alerts");
-      document.moveDown(0.2);
-      
-      for (const notif of snapshot.notifications.slice(0, 3)) {
-        const bgColor = notif.type === "ERROR" ? "#fee2e2" : notif.type === "WARNING" ? "#fef3c7" : "#d1fae5";
-        const borderColor = notif.type === "ERROR" ? "#ef4444" : notif.type === "WARNING" ? "#f59e0b" : "#06b6d4";
-        
-        document.fillColor(bgColor);
-        document.rect(40, document.y, 515, 35).fill();
-        document.strokeColor(borderColor);
-        document.lineWidth(1);
-        document.rect(40, document.y, 515, 35).stroke();
-        
-        document.fillColor("#000");
-        document.fontSize(9).font("Helvetica-Bold").text(`[${notif.type}] ${notif.title}`, 50, document.y + 5);
-        document.fontSize(8).font("Helvetica").fillColor("#555").text(notif.message, 50, document.y + 18, { width: 495 });
-        document.moveDown(2.8);
-      }
-      document.moveDown(0.3);
+      addSectionHeading("Recent Alerts");
+      snapshot.notifications.slice(0, 3).forEach((notification) => {
+        if (document.y > pageBottom - 55) document.addPage();
+        const boxY = document.y;
+        const bgColor = notification.type === "ERROR" ? "#fee2e2" : notification.type === "WARNING" ? "#fef3c7" : "#d1fae5";
+        const borderColor = notification.type === "ERROR" ? "#dc2626" : notification.type === "WARNING" ? "#d97706" : "#059669";
+        document.fillColor(bgColor).strokeColor(borderColor).lineWidth(1).roundedRect(40, boxY, contentWidth, 38, 4).fillAndStroke();
+        document.fontSize(8).font("Helvetica-Bold").fillColor("#111827").text(`[${notification.type}] ${safeText(notification.title)}`, 50, boxY + 6, { width: 495 });
+        document.fontSize(7).font("Helvetica").fillColor("#374151").text(safeText(notification.message), 50, boxY + 19, { width: 495, height: 13, ellipsis: true });
+        document.y = boxY + 50;
+      });
     }
 
-    // ===== AUDIT TRAIL SECTION =====
     if (snapshot.auditLogs.length > 0) {
-      document.fontSize(12).font("Helvetica-Bold").fillColor("#2d5a4c").text("📝 Recent Activity Log");
-      document.moveDown(0.2);
-      
-      // Table header
-      document.fillColor("#2d5a4c");
-      document.rect(40, document.y, 515, 16).fill();
-      document.fontSize(8).font("Helvetica-Bold").fillColor("#fff");
-      document.text("Date", 45, document.y + 3);
-      document.text("Action", 110, document.y + 3);
-      document.text("Entity", 200, document.y + 3);
-      document.text("Summary", 300, document.y + 3);
-      document.moveDown(1);
-      
-      // Table rows
-      document.fontSize(7).font("Helvetica").fillColor("#333");
+      addSectionHeading("Recent Activity Log");
+      const drawAuditHeader = () => {
+        document.fillColor("#2d5a4c").rect(40, document.y, contentWidth, 18).fill();
+        document.fontSize(7).font("Helvetica-Bold").fillColor("#fff");
+        document.text("Date", 46, document.y + 5);
+        document.text("Action", 112, document.y + 5);
+        document.text("Entity", 220, document.y + 5);
+        document.text("Summary", 315, document.y + 5);
+        document.y += 18;
+      };
+      drawAuditHeader();
       for (const entry of snapshot.auditLogs.slice(0, 8)) {
-        const date = new Date(entry.timestamp).toLocaleDateString();
-        
-        if (document.y > 750) {
+        if (document.y > pageBottom - 24) {
           document.addPage();
+          addSectionHeading("Recent Activity Log (continued)");
+          drawAuditHeader();
         }
-        
-        document.fillColor("#f9fafb");
-        document.rect(40, document.y, 515, 12).fill();
-        document.fillColor("#333");
-        document.text(date, 45, document.y + 1, { width: 60 });
-        document.text(entry.action, 110, document.y + 1, { width: 85 });
-        document.text(entry.entityType.substring(0, 12), 200, document.y + 1, { width: 95 });
-        document.text(entry.summary.substring(0, 40), 300, document.y + 1, { width: 250 });
-        document.moveDown(1);
+        const rowY = document.y;
+        document.fillColor("#f9fafb").rect(40, rowY, contentWidth, 20).fill();
+        document.fontSize(7).font("Helvetica").fillColor("#333");
+        document.text(new Date(entry.timestamp).toLocaleDateString(), 46, rowY + 6, { width: 60 });
+        document.text(safeText(entry.action), 112, rowY + 6, { width: 100, ellipsis: true });
+        document.text(safeText(entry.entityType), 220, rowY + 6, { width: 85, ellipsis: true });
+        document.text(safeText(entry.summary), 315, rowY + 6, { width: 235, ellipsis: true });
+        document.y = rowY + 20;
       }
     }
 
-    // ===== FOOTER =====
-    document.moveDown(1);
-    document.fontSize(8).fillColor("#999");
-    document.strokeColor("#e5e7eb");
-    document.moveTo(40, document.y).lineTo(555, document.y).stroke();
-    document.moveDown(0.3);
-    document.fillColor("#999");
+    document.fontSize(8).font("Helvetica").fillColor("#999");
+    document.strokeColor("#e5e7eb").moveTo(40, Math.min(document.y + 12, pageBottom)).lineTo(555, Math.min(document.y + 12, pageBottom)).stroke();
+    document.y = Math.min(document.y + 20, pageBottom + 1);
     document.text("Carbon Commit v1.0 | TIET Sustainability Initiative | Confidential", { align: "center" });
-    document.text(`Page ${document.bufferedPageRange().count}`, { align: "center" });
+    const pageRange = document.bufferedPageRange();
+    for (let page = 0; page < pageRange.count; page += 1) {
+      document.switchToPage(page);
+      document.fontSize(8).fillColor("#999").text(`Page ${page + 1} of ${pageRange.count}`, 40, 806, { width: contentWidth, align: "center" });
+    }
 
     document.end();
   });
