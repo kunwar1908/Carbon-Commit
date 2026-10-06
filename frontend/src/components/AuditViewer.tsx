@@ -60,7 +60,7 @@ export const AuditViewer: React.FC<AuditViewerProps> = ({ accessToken }) => {
             placeholder="e.g., activity_log"
             value={entityType}
             onChange={(e) => setEntityType(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-carbon-300 bg-white/6 text-carbon-900 placeholder:text-carbon-500 focus:outline-none focus:border-carbon-400"
+            className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 placeholder:text-slate-500 focus:border-cyan-600 focus:outline-none"
           />
         </div>
         <div>
@@ -70,7 +70,7 @@ export const AuditViewer: React.FC<AuditViewerProps> = ({ accessToken }) => {
             placeholder="e.g., 123"
             value={entityId}
             onChange={(e) => setEntityId(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-carbon-300 bg-white/6 text-carbon-900 placeholder:text-carbon-500 focus:outline-none focus:border-carbon-400"
+            className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 placeholder:text-slate-500 focus:border-cyan-600 focus:outline-none"
           />
         </div>
         <div>
@@ -79,7 +79,7 @@ export const AuditViewer: React.FC<AuditViewerProps> = ({ accessToken }) => {
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-carbon-300 bg-white/6 text-carbon-900 focus:outline-none focus:border-carbon-400"
+            className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 focus:border-cyan-600 focus:outline-none"
           />
         </div>
         <div>
@@ -88,7 +88,7 @@ export const AuditViewer: React.FC<AuditViewerProps> = ({ accessToken }) => {
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-carbon-300 bg-white/6 text-carbon-900 focus:outline-none focus:border-carbon-400"
+            className="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 focus:border-cyan-600 focus:outline-none"
           />
         </div>
       </div>
@@ -104,7 +104,7 @@ export const AuditViewer: React.FC<AuditViewerProps> = ({ accessToken }) => {
         <button
           onClick={handleResetFilters}
           disabled={loading}
-          className="px-4 py-2 bg-white/6 text-carbon-900 rounded-lg hover:bg-white/5 border border-carbon-200/30 font-medium transition"
+          className="rounded-lg border border-slate-300 bg-slate-100 px-4 py-2 font-medium text-slate-800 transition hover:bg-slate-200"
         >
           Reset Filters
         </button>
@@ -113,7 +113,7 @@ export const AuditViewer: React.FC<AuditViewerProps> = ({ accessToken }) => {
       <div className="overflow-x-auto rounded-lg border border-carbon-200">
         <div className="h-1 w-full bg-accent-500/20" />
         <table className="w-full text-sm">
-          <thead className="bg-white/6 border-b border-carbon-200">
+          <thead className="border-b border-slate-300 bg-slate-100">
             <tr>
               <th className="px-4 py-2 text-left font-semibold text-carbon-800">Timestamp</th>
               <th className="px-4 py-2 text-left font-semibold text-carbon-800">Entity Type</th>
@@ -132,7 +132,7 @@ export const AuditViewer: React.FC<AuditViewerProps> = ({ accessToken }) => {
               </tr>
             ) : (
               logs.map((log) => (
-                <tr key={log.id} className="border-b border-carbon-200/40 hover:bg-white/5">
+                <tr key={log.id} className="border-b border-slate-200 hover:bg-slate-50">
                   <td className="px-4 py-2 text-carbon-700">{new Date(log.timestamp).toLocaleString()}</td>
                   <td className="px-4 py-2 text-carbon-700">{log.entityType}</td>
                   <td className="px-4 py-2 text-carbon-700">{log.entityId}</td>
@@ -141,7 +141,7 @@ export const AuditViewer: React.FC<AuditViewerProps> = ({ accessToken }) => {
                   <td className="px-4 py-2 text-carbon-600 max-w-xs truncate">
                     <details className="cursor-pointer">
                       <summary className="text-accent-500 hover:underline">View</summary>
-                      <pre className="bg-white/6 p-2 rounded mt-2 text-xs overflow-auto max-h-40 text-carbon-800 border border-carbon-200/30">
+                      <pre className="mt-2 max-h-40 overflow-auto rounded border border-slate-300 bg-slate-100 p-2 text-xs text-slate-800">
                         {log.summary}
                       </pre>
                     </details>

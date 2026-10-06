@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
 import { Dashboard } from "./Dashboard";
@@ -7,6 +7,8 @@ import { AuthScreen } from "./AuthScreen";
 export const ProtectedDashboard = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const signingOutRef = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -21,6 +23,7 @@ export const ProtectedDashboard = () => {
     void loadSession();
 
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      if (signingOutRef.current) return;
       if (active) {
         setSession(nextSession);
         setLoading(false);
@@ -34,8 +37,21 @@ export const ProtectedDashboard = () => {
   }, []);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
+    if (isSigningOut) return;
+    signingOutRef.current = true;
+    setIsSigningOut(true);
+    try {
+      await supabase.auth.signOut();
+      window.setTimeout(() => {
+        setSession(null);
+        setIsSigningOut(false);
+        signingOutRef.current = false;
+      }, 320);
+    } catch (error) {
+      signingOutRef.current = false;
+      setIsSigningOut(false);
+      throw error;
+    }
   };
 
   if (loading) {
@@ -46,5 +62,9 @@ export const ProtectedDashboard = () => {
     return <AuthScreen onAuthenticated={() => undefined} />;
   }
 
-  return <Dashboard session={session} onSignOut={handleSignOut} />;
+  return (
+    <div className={isSigningOut ? "auth-panel-exit" : undefined}>
+      <Dashboard session={session} onSignOut={handleSignOut} />
+    </div>
+  );
 };

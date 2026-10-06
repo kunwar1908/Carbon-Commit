@@ -38,10 +38,10 @@ export const AuthScreen = ({ onAuthenticated }: AuthScreenProps) => {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-teal-950/40 via-blue-900/30 to-slate-800/40 px-4 py-10 text-white">
+    <main className="auth-screen-enter min-h-screen bg-gradient-to-br from-teal-950/40 via-blue-900/30 to-slate-800/40 px-4 py-10 text-white">
       <section className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-5xl items-center justify-center">
         <div className="grid w-full gap-8 lg:grid-cols-[1.1fr_0.9fr] items-center">
-          <div className="liquid-shell space-y-6 rounded-[2rem] p-8 lg:order-1">
+          <div className="liquid-shell auth-panel-enter space-y-6 rounded-[2rem] p-8 lg:order-1">
             <p className="text-xs uppercase tracking-[0.4em] text-carbon-800">Carbon Commit</p>
             <h1 className="text-4xl font-semibold tracking-tight text-carbon-900 sm:text-5xl">Manage campus sustainability logs.</h1>
             <p className="max-w-xl text-sm leading-6 text-carbon-700 sm:text-base">
@@ -49,7 +49,7 @@ export const AuthScreen = ({ onAuthenticated }: AuthScreenProps) => {
             </p>
           </div>
 
-        <form onSubmit={handleSubmit} className="liquid-surface w-full rounded-[1.75rem] p-6 text-carbon-900 shadow-2xl lg:order-2">
+        <form onSubmit={handleSubmit} className="liquid-surface auth-panel-enter w-full rounded-[1.75rem] p-6 text-carbon-900 shadow-2xl lg:order-2">
             <div className="mb-6">
               <p className="text-xs uppercase tracking-[0.2em] text-carbon-800 font-semibold mb-2">Carbon Commit</p>
               <h1 className="text-2xl font-bold text-carbon-900 mb-2">Sign In</h1>
@@ -101,9 +101,14 @@ export const AuthScreen = ({ onAuthenticated }: AuthScreenProps) => {
             <button
               type="submit"
               disabled={busy}
-              className="w-full rounded-2xl bg-accent-600 px-4 py-3 font-medium text-carbon-900 transition hover:bg-accent-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-accent-600 px-4 py-3 font-medium text-carbon-900 transition hover:-translate-y-0.5 hover:bg-accent-700 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {busy ? "Please wait..." : mode === "sign-in" ? "Sign In" : "Create Account"}
+              {busy ? (
+                <>
+                  <span className="auth-spinner" aria-hidden="true" />
+                  <span>Authenticating...</span>
+                </>
+              ) : mode === "sign-in" ? "Sign In" : "Create Account"}
             </button>
 
             {message ? <p className="mt-4 text-sm text-carbon-600">{message}</p> : null}

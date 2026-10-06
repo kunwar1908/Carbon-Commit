@@ -51,10 +51,17 @@ export const KpiGrid: React.FC<KpiGridProps> = ({ accessToken, refreshKey }) => 
   }
 
   const toneClasses: Record<RoleKpi["tone"], string> = {
-    neutral: "from-carbon-700/50 to-carbon-600/30 border-carbon-600/30 text-white",
-    warning: "from-amber-900/40 to-amber-800/20 border-amber-600/30 text-amber-200",
-    success: "from-emerald-900/40 to-emerald-800/20 border-emerald-600/30 text-emerald-200",
-    critical: "from-red-900/40 to-red-800/20 border-red-600/30 text-red-200",
+    neutral: "bg-slate-100 border-slate-300",
+    warning: "bg-amber-100 border-amber-300",
+    success: "bg-emerald-100 border-emerald-300",
+    critical: "bg-red-100 border-red-300",
+  };
+
+  const toneTextClasses: Record<RoleKpi["tone"], { label: string; value: string; detail: string }> = {
+    neutral: { label: "text-slate-700", value: "text-slate-950", detail: "text-slate-600" },
+    warning: { label: "text-amber-800", value: "text-amber-950", detail: "text-amber-700" },
+    success: { label: "text-emerald-800", value: "text-emerald-950", detail: "text-emerald-700" },
+    critical: { label: "text-red-800", value: "text-red-950", detail: "text-red-700" },
   };
 
   return (
@@ -71,10 +78,10 @@ export const KpiGrid: React.FC<KpiGridProps> = ({ accessToken, refreshKey }) => 
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {kpis.map((item) => (
-          <div key={item.label} className={`rounded-2xl p-6 border ${toneClasses[item.tone]} bg-white/6`}> 
-            <p className="text-sm font-medium mb-1 text-carbon-800">{item.label}</p>
-            <p className="text-3xl font-bold text-carbon-900">{item.value}</p>
-            <p className="text-xs mt-2 text-carbon-600">{item.detail}</p>
+          <div key={item.label} className={`rounded-2xl border p-6 ${toneClasses[item.tone]}`}>
+            <p className={`mb-1 text-sm font-medium ${toneTextClasses[item.tone].label}`}>{item.label}</p>
+            <p className={`text-3xl font-bold ${toneTextClasses[item.tone].value}`}>{item.value}</p>
+            <p className={`mt-2 text-xs ${toneTextClasses[item.tone].detail}`}>{item.detail}</p>
           </div>
         ))}
       </div>

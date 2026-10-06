@@ -85,43 +85,43 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ accessToken }) => {
         <button
           onClick={handleExportActivityCsv}
           disabled={exporting !== null}
-          className="flex flex-col items-center justify-center p-6 bg-white/6 border-2 border-carbon-200 rounded-lg hover:bg-white/5 disabled:bg-white/3 disabled:border-carbon-200/20 transition text-carbon-800"
+          className="flex flex-col items-center justify-center rounded-lg border-2 border-blue-300 bg-blue-50 p-6 text-blue-950 transition hover:bg-blue-100 disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500"
         >
           <div className="text-2xl mb-2">📊</div>
-          <span className="font-semibold text-carbon-800 text-center">
+          <span className="text-center font-semibold text-blue-950">
             {exporting === "csv" ? "Exporting..." : "Export Activity Logs (CSV)"}
           </span>
-          <span className="text-xs text-carbon-600 mt-1">All activity logs</span>
+          <span className="mt-1 text-xs text-blue-700">All activity logs</span>
         </button>
 
         <button
           onClick={handleExportAuditCsv}
           disabled={exporting !== null}
-          className="flex flex-col items-center justify-center p-6 bg-white/6 border-2 border-carbon-200 rounded-lg hover:bg-white/5 disabled:bg-white/3 disabled:border-carbon-200/20 transition text-carbon-800"
+          className="flex flex-col items-center justify-center rounded-lg border-2 border-violet-300 bg-violet-50 p-6 text-violet-950 transition hover:bg-violet-100 disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500"
         >
           <div className="text-2xl mb-2">🔍</div>
-          <span className="font-semibold text-carbon-800 text-center">
+          <span className="text-center font-semibold text-violet-950">
             {exporting === "audit" ? "Exporting..." : "Export Audit Logs (CSV)"}
           </span>
-          <span className="text-xs text-carbon-600 mt-1">Admin audit trail</span>
+          <span className="mt-1 text-xs text-violet-700">Admin audit trail</span>
         </button>
 
         <button
           onClick={handleExportPdf}
           disabled={exporting !== null}
-          className="flex flex-col items-center justify-center p-6 bg-white/6 border-2 border-carbon-200 rounded-lg hover:bg-white/5 disabled:bg-white/3 disabled:border-carbon-200/20 transition text-carbon-800"
+          className="flex flex-col items-center justify-center rounded-lg border-2 border-emerald-300 bg-emerald-50 p-6 text-emerald-950 transition hover:bg-emerald-100 disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-500"
         >
           <div className="text-2xl mb-2">📄</div>
-          <span className="font-semibold text-carbon-800 text-center">
+          <span className="text-center font-semibold text-emerald-950">
             {exporting === "pdf" ? "Exporting..." : "Export PDF Report"}
           </span>
-          <span className="text-xs text-carbon-600 mt-1">Compliance report</span>
+          <span className="mt-1 text-xs text-emerald-700">Compliance report</span>
         </button>
       </div>
 
-      <div className="mt-6 p-4 bg-white/6 rounded-lg text-sm text-carbon-700 border border-carbon-200">
-        <p className="font-semibold mb-2 text-carbon-800">Export Information:</p>
-        <ul className="list-disc list-inside space-y-1 text-xs text-carbon-600">
+      <div className="mt-6 rounded-lg border border-slate-300 bg-slate-100 p-4 text-sm text-slate-700">
+        <p className="mb-2 font-semibold text-slate-900">Export Information:</p>
+        <ul className="list-inside list-disc space-y-1 text-xs text-slate-600">
           <li>Activity Logs CSV: Contains all submitted activities with emissions calculations</li>
           <li>Audit Logs CSV: Contains admin-only audit trail for compliance and tracking</li>
           <li>PDF Report: Comprehensive compliance report with department summaries and charts</li>

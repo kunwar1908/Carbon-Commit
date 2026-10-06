@@ -82,13 +82,21 @@ export const FootprintChart: React.FC<FootprintChartProps> = ({ accessToken }) =
           <div className="flex gap-2">
             <button
               onClick={() => setSection("transport")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${section === "transport" ? "bg-accent-500 text-carbon-900 font-semibold" : "bg-white/6 text-carbon-700 hover:bg-white/5"}`}
+              className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                section === "transport"
+                  ? "border-cyan-600 bg-cyan-600 font-semibold text-white shadow-sm"
+                  : "border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200"
+              }`}
             >
               Campus Transport
             </button>
             <button
               onClick={() => setSection("hostel")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${section === "hostel" ? "bg-accent-500 text-carbon-900 font-semibold" : "bg-white/6 text-carbon-700 hover:bg-white/5"}`}
+              className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                section === "hostel"
+                  ? "border-cyan-600 bg-cyan-600 font-semibold text-white shadow-sm"
+                  : "border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200"
+              }`}
             >
               Hostels
             </button>
@@ -102,8 +110,8 @@ export const FootprintChart: React.FC<FootprintChartProps> = ({ accessToken }) =
                 onClick={() => setSelectedDept(dept.id)}
                 className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition-all duration-300 ${
                   selectedDept === dept.id
-                    ? "bg-accent-500 text-carbon-900 font-semibold"
-                    : "bg-white/6 text-carbon-700 hover:bg-white/5"
+                    ? "border border-cyan-600 bg-cyan-600 font-semibold text-white shadow-sm"
+                    : "border border-slate-300 bg-slate-100 text-slate-700 hover:bg-slate-200"
                 }`}
               >
                 {dept.name}
@@ -153,17 +161,17 @@ export const FootprintChart: React.FC<FootprintChartProps> = ({ accessToken }) =
 
               {/* Stats */}
               <div className="space-y-3">
-                  <div className="bg-white/6 rounded-lg p-4 border border-carbon-200">
-                    <p className="text-sm font-medium text-carbon-700 mb-1">Total Emissions</p>
-                    <p className="text-2xl font-bold text-carbon-900">
+                  <div className="rounded-lg border border-emerald-300 bg-emerald-100 p-4">
+                    <p className="mb-1 text-sm font-medium text-emerald-800">Total Emissions</p>
+                    <p className="text-2xl font-bold text-emerald-950">
                       {selected.totalEmissions.toFixed(2)} kg CO₂
                     </p>
-                    <p className="text-xs text-carbon-600 mt-1">Baseline: {selected.baseline.toFixed(2)} kg CO₂</p>
-                    <p className="text-xs text-carbon-600">Variance: {selected.variance.toFixed(2)} kg CO₂</p>
+                    <p className="mt-1 text-xs text-emerald-700">Baseline: {selected.baseline.toFixed(2)} kg CO₂</p>
+                    <p className="text-xs text-emerald-700">Variance: {selected.variance.toFixed(2)} kg CO₂</p>
                   </div>
 
-                  <div className="bg-white/6 border border-carbon-200 rounded-lg p-4">
-                    <p className="text-sm font-semibold text-carbon-800 mb-3">Breakdown by Activity</p>
+                  <div className="rounded-lg border border-blue-300 bg-blue-100 p-4">
+                    <p className="mb-3 text-sm font-semibold text-blue-900">Breakdown by Activity</p>
                     <div className="space-y-2">
                       {breakdown.map((item, idx) => (
                         <div key={idx} className="flex items-center justify-between text-sm">
@@ -172,9 +180,9 @@ export const FootprintChart: React.FC<FootprintChartProps> = ({ accessToken }) =
                               className="w-3 h-3 rounded-full"
                               style={{ backgroundColor: COLORS[idx % COLORS.length] }}
                             />
-                            <span className="text-carbon-700">{item.category}</span>
+                            <span className="text-blue-800">{item.category}</span>
                           </div>
-                          <span className="font-semibold text-carbon-900">
+                          <span className="font-semibold text-blue-950">
                             {item.value.toFixed(2)} kg ({selected.totalEmissions > 0 ? ((item.value / selected.totalEmissions) * 100).toFixed(1) : "0.0"}%)
                           </span>
                         </div>

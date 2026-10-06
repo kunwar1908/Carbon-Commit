@@ -87,7 +87,7 @@ export const NotificationInbox: React.FC<NotificationInboxProps> = ({ accessToke
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
-                    <span className={`px-2 py-1 rounded-lg text-xs font-semibold ${typeColors[notification.type] || "bg-white/6 text-carbon-700"}`}>
+                    <span className={`rounded-lg px-2 py-1 text-xs font-semibold ${typeColors[notification.type] || "border border-slate-200 bg-slate-100 text-slate-700"}`}>
                       {notification.type}
                     </span>
                     {notification.isRead && (
@@ -99,7 +99,7 @@ export const NotificationInbox: React.FC<NotificationInboxProps> = ({ accessToke
                   {notification.relatedData && Object.keys(notification.relatedData).length > 0 && (
                     <details className="mt-2 cursor-pointer">
                       <summary className="text-accent-500 hover:text-accent-400 text-sm font-medium">Show details</summary>
-                      <pre className="bg-white/6 p-2 rounded-lg mt-2 text-xs overflow-auto max-h-40 text-carbon-900 border border-carbon-200/30">
+                      <pre className="mt-2 max-h-40 overflow-auto rounded-lg border border-slate-300 bg-slate-100 p-2 text-xs text-slate-900">
                         {JSON.stringify(notification.relatedData, null, 2)}
                       </pre>
                     </details>
@@ -126,7 +126,7 @@ export const NotificationInbox: React.FC<NotificationInboxProps> = ({ accessToke
         </div>
       )}
 
-      <div className="mt-4 text-sm text-carbon-200">
+      <div className="mt-4 text-sm text-carbon-700">
         Total: <span className="font-semibold">{notifications.length}</span>
       </div>
     </div>

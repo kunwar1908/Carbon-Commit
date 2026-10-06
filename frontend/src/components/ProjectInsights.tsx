@@ -95,7 +95,7 @@ const roadmapItems = [
 
 export const ProjectInsights = () => {
   return (
-    <div className="space-y-6">
+    <div className="site-page-enter space-y-6">
       <div className="liquid-surface rounded-[1.5rem] p-8">
         <h2 className="text-3xl font-bold text-accent-600 mb-2">📊 Project Architecture & Insights</h2>
         <p className="text-carbon-700 text-lg">A documentation-style view of the schema, triggers, functions, and demo coverage behind Carbon Commit.</p>
@@ -117,7 +117,7 @@ export const ProjectInsights = () => {
         >
           <div className="space-y-3">
             {schemaTables.map((table, index) => (
-              <div key={table.name} className="rounded-xl border border-carbon-200 bg-white/6 px-4 py-3">
+              <div key={table.name} className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
                 <div className="flex items-start gap-3">
                   <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-sm font-bold text-emerald-700">
                     {index + 1}
@@ -144,7 +144,7 @@ export const ProjectInsights = () => {
               intro="Reusable database routines that compute or persist derived state."
             >
               {schemaFunctions.map((item) => (
-                <div key={item.name} className="rounded-xl border border-carbon-200 bg-white/6 px-4 py-3">
+                <div key={item.name} className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3">
                   <p className="font-mono text-sm font-semibold text-carbon-900">{item.name}</p>
                   <p className="mt-1 text-sm text-carbon-700">{item.summary}</p>
                   <p className="mt-2 text-xs uppercase tracking-[0.2em] text-carbon-600">{item.usedBy}</p>
@@ -157,7 +157,7 @@ export const ProjectInsights = () => {
               intro="Automatic hooks that fire after database writes and keep secondary data current."
             >
               {schemaTriggers.map((item) => (
-                <div key={item.name} className="rounded-xl border border-carbon-200 bg-white/6 px-4 py-3">
+                <div key={item.name} className="rounded-xl border border-purple-200 bg-purple-50 px-4 py-3">
                   <p className="font-mono text-sm font-semibold text-carbon-900">{item.name}</p>
                   <p className="mt-1 text-xs uppercase tracking-[0.2em] text-carbon-600">{item.firesOn}</p>
                   <p className="mt-2 text-sm text-carbon-700">{item.effect}</p>
@@ -175,7 +175,7 @@ export const ProjectInsights = () => {
         >
           <div className="space-y-3">
             {automationSteps.map((step, index) => (
-              <div key={step} className="flex gap-3 rounded-xl border border-carbon-200 bg-white/6 px-4 py-3">
+              <div key={step} className="flex gap-3 rounded-xl border border-purple-200 bg-purple-50 px-4 py-3">
                 <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-purple-50 text-sm font-bold text-purple-700">
                   {index + 1}
                 </div>
@@ -276,9 +276,14 @@ type InfoCardProps = {
 
 const InfoCard = ({ title, icon, summary, children, color }: InfoCardProps) => {
   return (
-    <article className={`rounded-2xl border border-carbon-200 bg-white/6 p-6 backdrop-blur-sm hover:border-carbon-300 transition-all duration-300`}>
-      <h3 className="text-xl font-bold text-accent-600 mb-1">{icon} {title}</h3>
-      <p className="text-sm text-carbon-700 mb-4">{summary}</p>
+    <article className={`site-card-enter rounded-2xl border p-6 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 ${{
+      emerald: "border-emerald-200 bg-emerald-50/80 hover:border-emerald-300",
+      blue: "border-blue-200 bg-blue-50/80 hover:border-blue-300",
+      purple: "border-purple-200 bg-purple-50/80 hover:border-purple-300",
+      amber: "border-amber-200 bg-amber-50/80 hover:border-amber-300",
+    }[color]}`}>
+      <h3 className="mb-1 text-xl font-bold text-carbon-900">{icon} {title}</h3>
+      <p className="mb-4 text-sm text-carbon-700">{summary}</p>
       <div className="mt-4">{children}</div>
     </article>
   );
@@ -286,7 +291,7 @@ const InfoCard = ({ title, icon, summary, children, color }: InfoCardProps) => {
 
 const DocBlock = ({ title, intro, children }: { title: string; intro: string; children: ReactNode }) => (
   <section>
-    <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-slate-300">{title}</p>
+    <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-carbon-800">{title}</p>
     <p className="mb-3 text-sm text-carbon-700">{intro}</p>
     <div className="space-y-2">{children}</div>
   </section>
@@ -314,7 +319,7 @@ const ArchitectureBox = ({ title, color, items }: { title: string; color: "blue"
       <p className={`font-bold text-lg mb-2 ${textColors[color]}`}>{title}</p>
       <div className="flex flex-wrap gap-2">
         {items.map((item) => (
-          <span key={item} className={`text-xs px-2 py-1 rounded-md bg-white/6 border border-carbon-200 text-carbon-700`}>
+          <span key={item} className="rounded-md border border-slate-300 bg-white px-2 py-1 text-xs text-slate-700">
             {item}
           </span>
         ))}
@@ -330,10 +335,10 @@ const Arrow = () => (
 );
 
 const SummaryCard = ({ title, value, description, icon }: { title: string; value: string; description: string; icon: string }) => (
-  <div className="rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-800/50 to-slate-900/50 p-6 text-center hover:border-slate-600 transition-all duration-300">
-    <p className="text-3xl mb-2">{icon}</p>
-    <p className="text-3xl font-bold text-emerald-400 mb-2">{value}</p>
-    <p className="text-sm font-semibold text-slate-300 mb-1">{title}</p>
-    <p className="text-xs text-slate-500">{description}</p>
+  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-300">
+    <p className="mb-2 text-3xl">{icon}</p>
+    <p className="mb-2 text-3xl font-bold text-emerald-950">{value}</p>
+    <p className="mb-1 text-sm font-semibold text-emerald-900">{title}</p>
+    <p className="text-xs text-emerald-700">{description}</p>
   </div>
 );

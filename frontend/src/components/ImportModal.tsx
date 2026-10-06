@@ -79,7 +79,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({ accessToken, isOpen, o
             <div className="flex gap-3">
               <button
                 onClick={handleReset}
-                className="flex-1 px-4 py-2 bg-white/6 text-carbon-900 rounded-lg hover:bg-white/5 font-medium transition border border-carbon-200/30"
+                className="flex-1 rounded-lg border border-slate-300 bg-slate-100 px-4 py-2 font-medium text-slate-800 transition hover:bg-slate-200"
               >
                 Import Another
               </button>
@@ -99,7 +99,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({ accessToken, isOpen, o
               </div>
             )}
 
-            <div className="border-2 border-dashed border-carbon-300/40 rounded-lg p-6 text-center bg-white/6">
+            <div className="rounded-lg border-2 border-dashed border-slate-300 bg-slate-100 p-6 text-center">
               <input
                 type="file"
                 accept=".csv"
@@ -108,20 +108,20 @@ export const ImportModal: React.FC<ImportModalProps> = ({ accessToken, isOpen, o
                 id="csv-input"
               />
               <label htmlFor="csv-input" className="cursor-pointer">
-                <div className="text-carbon-200">
+                <div className="text-slate-700">
                   <p className="font-medium">Click to select or drag CSV file</p>
-                  <p className="text-xs mt-1">Supported: .csv files only</p>
+                  <p className="mt-1 text-xs text-slate-600">Supported: .csv files only</p>
                 </div>
               </label>
 
               {file && (
-                <div className="mt-3 text-sm font-semibold text-emerald-200">
+                <div className="mt-3 text-sm font-semibold text-emerald-700">
                   ✓ {file.name}
                 </div>
               )}
             </div>
 
-            <div className="text-xs text-carbon-700 bg-white/6 p-3 rounded-lg border border-carbon-200">
+            <div className="rounded-lg border border-slate-300 bg-slate-100 p-3 text-xs text-slate-700">
               <p className="font-semibold mb-1">CSV Format Required:</p>
               <ul className="list-disc pl-4">
                 <li><strong>Columns (in order):</strong> deptId, activityType, units, notes (optional), timestamp (optional)</li>
@@ -131,9 +131,9 @@ export const ImportModal: React.FC<ImportModalProps> = ({ accessToken, isOpen, o
                 <li><strong>notes:</strong> free text (optional)</li>
                 <li><strong>timestamp:</strong> optional ISO date string in <code>YYYY-MM-DD</code> format; if omitted current server time will be used</li>
               </ul>
-              <div className="mt-2 text-xs text-carbon-600">
+              <div className="mt-2 text-xs text-slate-600">
                 <p className="font-semibold mb-1">Example CSV row:</p>
-                <pre className="bg-white/5 p-2 rounded text-xs overflow-auto border border-carbon-200/30">dept123,energy,42,"LED replacement",2024-09-01</pre>
+                <pre className="overflow-auto rounded border border-slate-300 bg-white p-2 text-xs text-slate-800">dept123,energy,42,"LED replacement",2024-09-01</pre>
                 <p className="mt-2">Tip: Ensure there is no header row. The importer expects raw rows matching the column order above.</p>
               </div>
             </div>
@@ -141,7 +141,7 @@ export const ImportModal: React.FC<ImportModalProps> = ({ accessToken, isOpen, o
             <div className="flex gap-3">
               <button
                 onClick={handleClose}
-                className="flex-1 px-4 py-2 bg-white/6 text-carbon-900 rounded-lg hover:bg-white/5 font-medium transition border border-carbon-200/30"
+                className="flex-1 rounded-lg border border-slate-300 bg-slate-100 px-4 py-2 font-medium text-slate-800 transition hover:bg-slate-200"
               >
                 Cancel
               </button>

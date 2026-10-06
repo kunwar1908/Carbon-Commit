@@ -323,7 +323,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
       {/* Main Content */}
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Page Navigation */}
-        <div className="liquid-menu mb-6 flex gap-2 overflow-x-auto rounded-full p-2">
+        <div className="liquid-menu site-card-enter mb-6 flex gap-2 overflow-x-auto rounded-full p-2">
           {(["dashboard", "operations", "insights"] as const).map((page) => (
             <button
               key={page}
@@ -350,7 +350,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
 
         {/* Dashboard Page - Animated */}
         {currentPage === "dashboard" && (
-          <div className="space-y-6 animate-in fade-in duration-300">
+          <div className="site-page-enter space-y-6">
             {/* Stats Row */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <StatCard label="Departments" value={referenceData.departments.length} color="blue" />
@@ -547,7 +547,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
 
         {/* Operations Console Page - Animated */}
         {currentPage === "operations" && (
-          <div className="space-y-6 animate-in fade-in duration-300">
+          <div className="site-page-enter space-y-6">
             {/* Operations Tabs */}
             <div className="liquid-menu flex gap-2 overflow-x-auto rounded-full p-2">
               {(["kpi", "audit", "footprint", "export", "import"] as const).map((tab) => (
@@ -587,7 +587,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                     <div className="text-sm text-carbon-700">Or drop files via the Import modal. See format below.</div>
                   </div>
 
-                  <div className="rounded-lg border border-carbon-200 bg-white/6 p-4 text-sm text-carbon-800">
+                  <div className="rounded-lg border border-slate-300 bg-slate-100 p-4 text-sm text-slate-800">
                     <p className="font-semibold mb-2">CSV Format (for Operations Import)</p>
                     <ul className="list-disc pl-4">
                       <li><strong>Columns (in order):</strong> deptId, activityType, units, notes (optional), timestamp (optional)</li>
@@ -596,7 +596,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                       <li><strong>units:</strong> numeric value</li>
                       <li><strong>timestamp:</strong> optional, YYYY-MM-DD (if omitted server time used)</li>
                     </ul>
-                    <p className="mt-2 text-xs text-carbon-700">Example row: <span className="font-mono">dept123,energy,42,"LED replacement",2024-09-01</span></p>
+                    <p className="mt-2 text-xs text-slate-700">Example row: <span className="font-mono">dept123,energy,42,"LED replacement",2024-09-01</span></p>
                   </div>
 
                   <ImportModal
@@ -613,7 +613,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
 
         {/* Insights Page - Animated */}
         {currentPage === "insights" && (
-          <div className="space-y-6 animate-in fade-in duration-300">
+          <div className="site-page-enter space-y-6">
             <ProjectInsights />
           </div>
         )}
