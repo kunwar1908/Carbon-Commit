@@ -294,7 +294,7 @@ async function main() {
       id: "carbon-admin-1",
       email: "carbon.admin@tiet.demo",
       fullName: "Campus Sustainability Admin",
-      role: "ADMIN",
+      role: "ADMIN" as const,
       isActive: true,
     },
     ...demoDepartments.map((department) => {
@@ -319,7 +319,7 @@ async function main() {
 
   try {
     await prisma.userProfile.createMany({
-      data: demoProfiles, // type ignore
+      data: demoProfiles,
       skipDuplicates: true,
     });
     console.log(`   ✓ ${demoProfiles.length} sample user profiles created`);
@@ -359,7 +359,9 @@ async function main() {
   if (existingDemoLogs === 0) {
     console.log("🧪 Seeding Thapar-inspired activity logs...");
     const demoLogs = departments.flatMap((department, index) => {
-      const profile = demoProfiles.find((entry) => entry.deptId === department.id);
+      const profile = demoProfiles.find(
+        (entry) => "deptId" in entry && entry.deptId === department.id,
+      );
 
       if (!profile) {
         return [];
