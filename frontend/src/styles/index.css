@@ -155,6 +155,35 @@ textarea:focus-visible {
   }
 }
 
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  .liquid-shell,
+  .liquid-surface,
+  .liquid-control,
+  .liquid-menu {
+    backdrop-filter: blur(8px) saturate(115%);
+    -webkit-backdrop-filter: blur(8px) saturate(115%);
+  }
+
+  .liquid-shell,
+  .liquid-surface {
+    box-shadow: 0 8px 24px rgba(12, 23, 21, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.82);
+  }
+}
+
 @layer components {
   .liquid-shell {
     border: 1px solid rgba(255, 255, 255, 0.58);

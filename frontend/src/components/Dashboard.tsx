@@ -1,15 +1,7 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { api } from "../lib/api";
 import { ToastContainer, type Toast } from "./Toast";
-import { ProfilePanel } from "./ProfilePanel";
-import { NotificationModal } from "./NotificationModal";
-import { ProjectInsights } from "./ProjectInsights";
-import { AuditViewer } from "./AuditViewer";
-import { ImportModal } from "./ImportModal";
-import { KpiGrid } from "./KpiGrid";
-import { FootprintChart } from "./FootprintChart";
-import { ExportPanel } from "./ExportPanel";
 import type {
   ActivityLogResponse,
   DepartmentAnalytics,
@@ -17,6 +9,19 @@ import type {
   RecentActivityLog,
   ReferenceData,
 } from "../types";
+
+const ProfilePanel = lazy(() => import("./ProfilePanel").then((module) => ({ default: module.ProfilePanel })));
+const NotificationModal = lazy(() =>
+  import("./NotificationModal").then((module) => ({ default: module.NotificationModal })),
+);
+const ProjectInsights = lazy(() => import("./ProjectInsights").then((module) => ({ default: module.ProjectInsights })));
+const AuditViewer = lazy(() => import("./AuditViewer").then((module) => ({ default: module.AuditViewer })));
+const ImportModal = lazy(() => import("./ImportModal").then((module) => ({ default: module.ImportModal })));
+const KpiGrid = lazy(() => import("./KpiGrid").then((module) => ({ default: module.KpiGrid })));
+const FootprintChart = lazy(() =>
+  import("./FootprintChart").then((module) => ({ default: module.FootprintChart })),
+);
+const ExportPanel = lazy(() => import("./ExportPanel").then((module) => ({ default: module.ExportPanel })));
 
 // Emission calculation criteria
 const emissionCriteria = [
@@ -252,29 +257,29 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
       <ToastContainer toasts={toasts} onRemove={removeToast} />
       {/* Header */}
       <header className="sticky top-0 z-40 border-b border-white/40 bg-carbon-50/30 shadow-lg backdrop-blur-md">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
+        <div className="mx-auto max-w-7xl px-3 py-3 sm:px-6 sm:py-4 lg:px-8">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="liquid-mark flex h-10 w-10 items-center justify-center bg-gradient-to-br from-accent-400 to-accent-500 font-bold text-carbon-900">
+              <div className="liquid-mark flex h-9 w-9 items-center justify-center bg-gradient-to-br from-accent-400 to-accent-500 font-bold text-carbon-900 sm:h-10 sm:w-10">
                 CC
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-carbon-900">Carbon Commit</h1>
-                  <p className="text-xs text-carbon-700">TIET Sustainability Dashboard</p>
+                <h1 className="text-lg font-bold text-carbon-900 sm:text-2xl">Carbon Commit</h1>
+                <p className="text-xs text-carbon-700">TIET Sustainability Dashboard</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-4">
               <div className="hidden sm:flex items-center gap-2 text-sm text-carbon-700">
                 <span>{session.user.email}</span>
                 {profileName && <span className="text-carbon-500">•</span>}
                 {profileName && <span className="font-medium text-carbon-700">{profileName}</span>}
               </div>
 
-              <div className="flex gap-2 relative">
+              <div className="relative flex flex-wrap justify-end gap-1.5 sm:gap-2">
                 <button
                   onClick={() => setNotificationPanelOpen(!notificationPanelOpen)}
-                  className="liquid-control relative rounded-full px-4 py-2 text-sm font-medium text-carbon-900 transition-all duration-200"
+                  className="liquid-control relative rounded-full px-2.5 py-2 text-xs font-medium text-carbon-900 transition-all duration-200 sm:px-4 sm:text-sm"
                 >
                   🔔 Notifications
                   {notificationCount > 0 && (
@@ -285,13 +290,13 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
                 </button>
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
-                  className="liquid-control rounded-full px-4 py-2 text-sm font-medium text-carbon-900 transition-all duration-200"
+                  className="liquid-control rounded-full px-2.5 py-2 text-xs font-medium text-carbon-900 transition-all duration-200 sm:px-4 sm:text-sm"
                 >
                   👤 Profile
                 </button>
                 <button
                   onClick={() => void onSignOut()}
-                  className="liquid-control rounded-full px-4 py-2 text-sm font-medium text-carbon-900 transition-all duration-200"
+                  className="liquid-control rounded-full px-2.5 py-2 text-xs font-medium text-carbon-900 transition-all duration-200 sm:px-4 sm:text-sm"
                 >
                   Sign Out
                 </button>
@@ -302,33 +307,41 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
       </header>
 
       {/* Profile Panel - Modal */}
-      <ProfilePanel
-        session={session}
-        open={profileOpen}
-        onClose={() => setProfileOpen(false)}
-        onSaveSuccess={(msg) => {
-          addToast(msg, "success");
-          void refreshData();
-        }}
-      />
+      {profileOpen && (
+        <Suspense fallback={null}>
+          <ProfilePanel
+            session={session}
+            open={profileOpen}
+            onClose={() => setProfileOpen(false)}
+            onSaveSuccess={(msg) => {
+              addToast(msg, "success");
+              void refreshData();
+            }}
+          />
+        </Suspense>
+      )}
 
       {/* Notification Modal */}
-      <NotificationModal
-        open={notificationPanelOpen}
-        onClose={() => setNotificationPanelOpen(false)}
-        accessToken={session.access_token}
-        onNotificationRead={() => setNotificationCount((current) => Math.max(0, current - 1))}
-      />
+      {notificationPanelOpen && (
+        <Suspense fallback={null}>
+          <NotificationModal
+            open={notificationPanelOpen}
+            onClose={() => setNotificationPanelOpen(false)}
+            accessToken={session.access_token}
+            onNotificationRead={() => setNotificationCount((current) => Math.max(0, current - 1))}
+          />
+        </Suspense>
+      )}
 
       {/* Main Content */}
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-7xl px-3 py-5 sm:px-6 sm:py-8 lg:px-8">
         {/* Page Navigation */}
-        <div className="liquid-menu site-card-enter mb-6 flex gap-2 overflow-x-auto rounded-full p-2">
+        <div className="liquid-menu site-card-enter mb-5 flex gap-1.5 overflow-x-auto rounded-full p-1.5 sm:mb-6 sm:gap-2 sm:p-2">
           {(["dashboard", "operations", "insights"] as const).map((page) => (
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`liquid-tab whitespace-nowrap px-4 py-2.5 font-medium ${
+              className={`liquid-tab whitespace-nowrap px-3 py-2 text-sm font-medium sm:px-4 sm:py-2.5 ${
                 currentPage === page
                   ? "liquid-tab-active"
                   : ""
@@ -352,7 +365,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
         {currentPage === "dashboard" && (
           <div className="site-page-enter space-y-6">
             {/* Stats Row */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
               <StatCard label="Departments" value={referenceData.departments.length} color="blue" />
               <StatCard label="Active Alerts" value={alerts.length} color="red" />
               <StatCard label="Leaderboard" value={leaderboard.length} color="green" />
@@ -360,8 +373,8 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             </div>
 
             {/* Emission Criteria */}
-            <div className="liquid-surface rounded-[1.5rem] p-6 transition-colors duration-300 hover:border-accent-200/70">
-              <h2 className="text-xl font-bold text-carbon-900 mb-4">📐 Carbon Emission Calculation Criteria</h2>
+            <div className="liquid-surface rounded-[1.5rem] p-4 transition-colors duration-300 hover:border-accent-200/70 sm:p-6">
+              <h2 className="mb-4 text-lg font-bold text-carbon-900 sm:text-xl">📐 Carbon Emission Calculation Criteria</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {emissionCriteria.map((item) => (
                   <div key={item.activity} className="rounded-2xl border border-carbon-200/40 bg-gradient-to-r from-white/7 via-purple-500/4 to-blue-500/3 p-4 hover:border-accent-300/30 transition-all duration-300 transform hover:scale-[1.02]">
@@ -374,8 +387,8 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             </div>
 
             {/* Data Entry Form */}
-            <div className="liquid-surface rounded-[1.5rem] p-6">
-              <h2 className="text-xl font-bold text-carbon-900 mb-4">📝 Record Activity</h2>
+            <div className="liquid-surface rounded-[1.5rem] p-4 sm:p-6">
+              <h2 className="mb-4 text-lg font-bold text-carbon-900 sm:text-xl">📝 Record Activity</h2>
               <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-carbon-700 mb-2">Department</label>
@@ -448,9 +461,9 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             </div>
 
             {/* Recent Logs - Paginated */}
-            <div className="liquid-surface rounded-[1.5rem] p-6">
+            <div className="liquid-surface rounded-[1.5rem] p-4 sm:p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-carbon-900">📋 Recent Insertions</h2>
+                <h2 className="text-lg font-bold text-carbon-900 sm:text-xl">📋 Recent Insertions</h2>
                 <button
                   onClick={() => void refreshData()}
                   className="px-3 py-1 bg-white/6 text-carbon-900 rounded-lg hover:bg-white/5 text-sm font-medium transition-all duration-300 border border-carbon-300/50"
@@ -464,7 +477,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
               ) : (
                 <>
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    <table className="w-full min-w-[36rem] text-sm">
                       <thead className="bg-white/6 border-b border-carbon-200">
                         <tr>
                           <th className="px-4 py-2 text-left font-semibold text-carbon-800">Department</th>
@@ -513,8 +526,8 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             </div>
 
             {/* Leaderboard - Paginated */}
-            <div className="liquid-surface rounded-[1.5rem] p-6">
-              <h2 className="text-xl font-bold text-carbon-900 mb-4">🏆 Leaderboard</h2>
+            <div className="liquid-surface rounded-[1.5rem] p-4 sm:p-6">
+              <h2 className="mb-4 text-lg font-bold text-carbon-900 sm:text-xl">🏆 Leaderboard</h2>
               {leaderboard.length === 0 ? (
                 <p className="text-carbon-300 text-center py-8">No leaderboard data</p>
               ) : (
@@ -549,12 +562,12 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
         {currentPage === "operations" && (
           <div className="site-page-enter space-y-6">
             {/* Operations Tabs */}
-            <div className="liquid-menu flex gap-2 overflow-x-auto rounded-full p-2">
+            <div className="liquid-menu flex gap-1.5 overflow-x-auto rounded-full p-1.5 sm:gap-2 sm:p-2">
               {(["kpi", "audit", "footprint", "export", "import"] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveOperationsTab(tab)}
-                  className={`liquid-tab whitespace-nowrap px-4 py-2.5 font-medium ${
+                  className={`liquid-tab whitespace-nowrap px-3 py-2 text-sm font-medium sm:px-4 sm:py-2.5 ${
                     activeOperationsTab === tab
                       ? "liquid-tab-active font-semibold"
                       : ""
@@ -569,44 +582,48 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
               ))}
             </div>
 
-            <div className="liquid-surface rounded-[1.5rem] border-carbon-200 p-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              {activeOperationsTab === "kpi" && <KpiGrid accessToken={session.access_token} refreshKey={operationsRefreshKey} />}
-              {activeOperationsTab === "audit" && <AuditViewer accessToken={session.access_token} />}
-              
-              {activeOperationsTab === "footprint" && <FootprintChart accessToken={session.access_token} />}
-              {activeOperationsTab === "export" && <ExportPanel accessToken={session.access_token} />}
-              {activeOperationsTab === "import" && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={() => setImportModalOpen(true)}
-                      className="px-6 py-3 bg-gradient-to-r from-accent-500 to-accent-600 text-carbon-900 rounded-lg hover:from-accent-600 hover:to-accent-700 font-medium transition-all duration-300 transform hover:scale-105 active:scale-95"
-                    >
-                      + Import CSV
-                    </button>
-                    <div className="text-sm text-carbon-700">Or drop files via the Import modal. See format below.</div>
-                  </div>
+            <div className="liquid-surface rounded-[1.5rem] border-carbon-200 p-4 animate-in fade-in slide-in-from-bottom-4 duration-500 sm:p-6">
+              <Suspense fallback={<div className="py-8 text-center text-carbon-700">Loading section...</div>}>
+                {activeOperationsTab === "kpi" && <KpiGrid accessToken={session.access_token} refreshKey={operationsRefreshKey} />}
+                {activeOperationsTab === "audit" && <AuditViewer accessToken={session.access_token} />}
 
-                  <div className="rounded-lg border border-slate-300 bg-slate-100 p-4 text-sm text-slate-800">
-                    <p className="font-semibold mb-2">CSV Format (for Operations Import)</p>
-                    <ul className="list-disc pl-4">
-                      <li><strong>Columns (in order):</strong> deptId, activityType, units, notes (optional), timestamp (optional)</li>
-                      <li><strong>deptId:</strong> department id or code</li>
-                      <li><strong>activityType:</strong> predefined activity type (e.g., energy, waste, travel)</li>
-                      <li><strong>units:</strong> numeric value</li>
-                      <li><strong>timestamp:</strong> optional, YYYY-MM-DD (if omitted server time used)</li>
-                    </ul>
-                    <p className="mt-2 text-xs text-slate-700">Example row: <span className="font-mono">dept123,energy,42,"LED replacement",2024-09-01</span></p>
-                  </div>
+                {activeOperationsTab === "footprint" && <FootprintChart accessToken={session.access_token} />}
+                {activeOperationsTab === "export" && <ExportPanel accessToken={session.access_token} />}
+                {activeOperationsTab === "import" && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-4">
+                      <button
+                        onClick={() => setImportModalOpen(true)}
+                        className="px-6 py-3 bg-gradient-to-r from-accent-500 to-accent-600 text-carbon-900 rounded-lg hover:from-accent-600 hover:to-accent-700 font-medium transition-all duration-300 transform hover:scale-105 active:scale-95"
+                      >
+                        + Import CSV
+                      </button>
+                      <div className="text-sm text-carbon-700">Or drop files via the Import modal. See format below.</div>
+                    </div>
 
-                  <ImportModal
-                    accessToken={session.access_token}
-                    isOpen={importModalOpen}
-                    onClose={() => setImportModalOpen(false)}
-                    onSuccess={() => void refreshData()}
-                  />
-                </div>
-              )}
+                    <div className="rounded-lg border border-slate-300 bg-slate-100 p-4 text-sm text-slate-800">
+                      <p className="font-semibold mb-2">CSV Format (for Operations Import)</p>
+                      <ul className="list-disc pl-4">
+                        <li><strong>Columns (in order):</strong> deptId, activityType, units, notes (optional), timestamp (optional)</li>
+                        <li><strong>deptId:</strong> department id or code</li>
+                        <li><strong>activityType:</strong> predefined activity type (e.g., energy, waste, travel)</li>
+                        <li><strong>units:</strong> numeric value</li>
+                        <li><strong>timestamp:</strong> optional, YYYY-MM-DD (if omitted server time used)</li>
+                      </ul>
+                      <p className="mt-2 text-xs text-slate-700">Example row: <span className="font-mono">dept123,energy,42,"LED replacement",2024-09-01</span></p>
+                    </div>
+
+                    {importModalOpen && (
+                      <ImportModal
+                        accessToken={session.access_token}
+                        isOpen={importModalOpen}
+                        onClose={() => setImportModalOpen(false)}
+                        onSuccess={() => void refreshData()}
+                      />
+                    )}
+                  </div>
+                )}
+              </Suspense>
             </div>
           </div>
         )}
@@ -614,7 +631,9 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
         {/* Insights Page - Animated */}
         {currentPage === "insights" && (
           <div className="site-page-enter space-y-6">
-            <ProjectInsights />
+            <Suspense fallback={<div className="py-8 text-center text-carbon-700">Loading insights...</div>}>
+              <ProjectInsights />
+            </Suspense>
           </div>
         )}
       </main>
@@ -634,14 +653,14 @@ const StatCard = ({ label, value, color }: { label: string; value: number; color
   const accent = accentClasses[color] ?? accentClasses.blue;
 
   return (
-    <div className="liquid-surface rounded-[1.5rem] p-6 transition-all duration-300 hover:-translate-y-1">
+    <div className="liquid-surface rounded-[1.5rem] p-3 transition-all duration-300 hover:-translate-y-1 sm:p-6">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium opacity-90 text-carbon-700">{label}</p>
-        <div className={`h-9 w-9 rounded-lg bg-gradient-to-br ${accent} flex items-center justify-center`}>
-          <div className="h-5 w-5 rounded-sm bg-white/80" />
+        <div className={`h-8 w-8 rounded-lg bg-gradient-to-br ${accent} flex items-center justify-center sm:h-9 sm:w-9`}>
+          <div className="h-4 w-4 rounded-sm bg-white/80 sm:h-5 sm:w-5" />
         </div>
       </div>
-      <p className="text-3xl font-bold text-carbon-900 mt-2">{value}</p>
+      <p className="mt-2 text-2xl font-bold text-carbon-900 sm:text-3xl">{value}</p>
     </div>
   );
 };
