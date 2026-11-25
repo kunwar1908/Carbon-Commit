@@ -39,11 +39,12 @@ postgresql://postgres.ssnbnsockfjgsheigkbv:Singhpreet%40190804@aws-1-ap-south-1.
 - ✅ `log_audit_action()` - Create audit entries
 - ✅ `notify_baseline_exceeded()` - Alert notifications
 
-### New Triggers (4)
+### New Triggers (5)
 - ✅ `activity_logs_update_analytics_trigger` - Auto-update cache
 - ✅ `activity_logs_audit_trigger` - Track log changes + notify
 - ✅ `user_profiles_audit_trigger` - Track user changes
 - ✅ `notifications_update_read_at_trigger` - Timestamp reads
+- ✅ `on_auth_user_created_profile` - Create a profile for each signup with a valid name
 
 ### New Security Policies
 - ✅ Row Level Security (RLS) on all sensitive tables
@@ -53,6 +54,10 @@ postgresql://postgres.ssnbnsockfjgsheigkbv:Singhpreet%40190804@aws-1-ap-south-1.
 ---
 
 ## 🚀 Step-by-Step Setup
+
+### Supabase Auth signup profiles
+
+Apply [`supabase/migrations/20261126022710_create_user_profile_on_signup.sql`](../supabase/migrations/20261126022710_create_user_profile_on_signup.sql) using the Supabase SQL Editor or Supabase CLI. It installs an `auth.users` trigger that creates a matching `user_profiles` row using the signup `full_name` metadata and rejects signups whose name is empty or whitespace-only. The signup form collects and validates this name before submitting.
 
 ### Step 1: Fix Database URL
 Edit `backend/.env`:
@@ -184,6 +189,7 @@ After setup, verify everything works:
 ✓ activity_logs_audit_trigger
 ✓ user_profiles_audit_trigger
 ✓ notifications_update_read_at_trigger
+✓ on_auth_user_created_profile
 
 # 4. Check RLS policies
 ✓ user_profiles: SELECT, UPDATE

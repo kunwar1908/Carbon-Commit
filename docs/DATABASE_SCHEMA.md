@@ -364,6 +364,21 @@ When: Before notification update
 Action: Sets read_at to CURRENT_TIMESTAMP when is_read=true
 ```
 
+### 5. **on_auth_user_created_profile**
+Creates a profile for each Supabase Auth user and prevents signup without a non-whitespace name.
+
+```sql
+TRIGGER on_auth_user_created_profile
+AFTER INSERT ON auth.users
+FOR EACH ROW
+EXECUTE FUNCTION handle_new_user_profile()
+
+When: After a Supabase Auth user is created
+Action: Inserts the user's ID, email, and full name into user_profiles
+```
+
+Apply the SQL migration at `supabase/migrations/20261126022710_create_user_profile_on_signup.sql`.
+
 ---
 
 ## 🔐 Row Level Security (RLS) Policies

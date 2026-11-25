@@ -8,12 +8,20 @@ type AuthScreenProps = {
 export const AuthScreen = ({ onAuthenticated }: AuthScreenProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    const trimmedFullName = fullName.trim();
+    if (mode === "sign-up" && !trimmedFullName) {
+      setMessage("Enter your name to create an account.");
+      return;
+    }
+
     setBusy(true);
     setMessage(null);
 
@@ -21,7 +29,11 @@ export const AuthScreen = ({ onAuthenticated }: AuthScreenProps) => {
       const result =
         mode === "sign-in"
           ? await supabase.auth.signInWithPassword({ email, password })
-          : await supabase.auth.signUp({ email, password });
+          : await supabase.auth.signUp({
+              email,
+              password,
+              options: { data: { full_name: trimmedFullName } },
+            });
       const { error } = result;
 
       if (error) {
@@ -52,7 +64,9 @@ export const AuthScreen = ({ onAuthenticated }: AuthScreenProps) => {
         <form onSubmit={handleSubmit} className="liquid-surface auth-panel-enter w-full rounded-[1.75rem] p-6 text-carbon-900 shadow-2xl lg:order-2">
             <div className="mb-6">
               <p className="text-xs uppercase tracking-[0.2em] text-carbon-800 font-semibold mb-2">Carbon Commit</p>
-              <h1 className="text-2xl font-bold text-carbon-900 mb-2">Sign In</h1>
+              <h1 className="text-2xl font-bold text-carbon-900 mb-2">
+                {mode === "sign-in" ? "Sign In" : "Create Account"}
+              </h1>
               <p className="text-sm text-carbon-700">Manage campus sustainability logs</p>
             </div>
 
@@ -72,6 +86,21 @@ export const AuthScreen = ({ onAuthenticated }: AuthScreenProps) => {
                 Sign Up
               </button>
             </div>
+
+            {mode === "sign-up" ? (
+              <label className="mb-4 block">
+                <span className="mb-2 block text-sm font-medium text-carbon-700">Full name</span>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(event) => setFullName(event.target.value)}
+                  className="w-full rounded-2xl border border-carbon-300 px-4 py-3 text-carbon-900 outline-none transition placeholder:text-carbon-500 focus:border-carbon-600"
+                  placeholder="Your full name"
+                  autoComplete="name"
+                  required
+                />
+              </label>
+            ) : null}
 
             <label className="mb-4 block">
               <span className="mb-2 block text-sm font-medium text-carbon-700">Email</span>
