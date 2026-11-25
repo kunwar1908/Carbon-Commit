@@ -2,13 +2,12 @@
 
 ## ⚠️ CRITICAL: Fix @ Symbol First
 
-Edit `backend/.env` and replace:
+If your database password contains reserved URL characters such as `@`, URL-encode them in `DATABASE_URL` and `DIRECT_URL`:
 ```bash
-# Change the password encoding:
-Singhpreet@190804  →  Singhpreet%40190804
+# Example: encode @ as %40 in the password portion of each connection string.
 ```
 
-Both `DATABASE_URL` and `DIRECT_URL` need this fix.
+Never commit database connection strings or passwords to source control.
 
 ---
 
