@@ -13,6 +13,12 @@ The project is split into a Vite React frontend, an Express + TypeScript backend
 - Aggregates department analytics, baseline variance, and leaderboard rankings.
 - Seeds reference departments and emission factors for a working demo dataset.
 
+
+
+https://github.com/user-attachments/assets/631308b7-0859-4ae5-9495-2e95278ae84c
+
+
+
 ## Tech Stack
 
 - Frontend: React 19, Vite, TypeScript, Tailwind CSS, Recharts, Supabase JS
