@@ -72,7 +72,14 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
       ]);
 
       setDepartments(referenceData.departments);
+      setFullName(summary.profile.fullName ?? getMetadataValue(metadata, "full_name"));
+      setAvatarUrl(summary.profile.avatarUrl ?? getMetadataValue(metadata, "avatar_url"));
       setDepartmentId(summary.profile.deptId ?? "");
+      setAddress(summary.profile.address ?? getMetadataValue(metadata, "address"));
+      setPhone(summary.profile.phone ?? getMetadataValue(metadata, "phone"));
+      setTitle(summary.profile.title ?? getMetadataValue(metadata, "title"));
+      setOrganization(summary.profile.organization ?? getMetadataValue(metadata, "organization"));
+      setBio(summary.profile.bio ?? getMetadataValue(metadata, "bio"));
     };
 
     setFullName(getMetadataValue(metadata, "full_name"));
@@ -98,8 +105,14 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
     event.preventDefault();
 
     const trimmedEmail = email.trim();
+    const trimmedFullName = fullName.trim();
     const trimmedPassword = newPassword.trim();
     const trimmedConfirmPassword = confirmPassword.trim();
+
+    if (!trimmedFullName) {
+      setError("Full name is required.");
+      return;
+    }
 
     if (trimmedPassword && trimmedPassword !== trimmedConfirmPassword) {
       setError("Passwords do not match.");
@@ -114,7 +127,7 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
     const updatePayload: Parameters<typeof supabase.auth.updateUser>[0] = {
       data: {
         avatar_url: avatarUrl.trim(),
-        full_name: fullName.trim(),
+        full_name: trimmedFullName,
         department: selectedDepartment?.name ?? "",
         address: address.trim(),
         phone: phone.trim(),
@@ -141,9 +154,18 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
     }
 
     try {
-      await api.updateProfileDepartment(departmentId === "" ? null : departmentId, session.access_token);
+      await api.updateProfile({
+        fullName: trimmedFullName,
+        avatarUrl: avatarUrl.trim(),
+        address: address.trim(),
+        phone: phone.trim(),
+        title: title.trim(),
+        organization: organization.trim(),
+        bio: bio.trim(),
+        deptId: departmentId === "" ? null : departmentId,
+      }, session.access_token);
     } catch (profileError) {
-      setError(profileError instanceof Error ? profileError.message : "Failed to update department.");
+      setError(profileError instanceof Error ? profileError.message : "Failed to update profile.");
       setSaving(false);
       return;
     }
@@ -234,7 +256,9 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
           <div className="grid gap-6 lg:grid-cols-[1fr_0.9fr]">
             <section className="rounded-[1.75rem] border border-white/10 bg-gradient-to-br from-slate-950/45 via-cyan-950/20 to-teal-950/20 p-5 text-white">
               <h3 className="text-lg font-semibold text-white">General Info</h3>
-              <p className="mt-1 text-sm text-white/75">This data is saved in your Supabase user metadata.</p>
+              <p className="mt-1 text-sm text-white/75">
+                Your name and department are also synced to your user profile record.
+              </p>
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <label className="sm:col-span-2">
@@ -414,7 +438,9 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
           {message ? <p className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{message}</p> : null}
 
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5">
-            <p className="text-xs text-white/70">Profile data is stored in Supabase user metadata for this account.</p>
+            <p className="text-xs text-white/70">
+              Profile details are stored in Supabase metadata; name and department are synced to user_profiles.
+            </p>
             <button
               type="submit"
               disabled={saving}

@@ -8,6 +8,12 @@ export type CurrentUserProfile = {
   id: string;
   email: string;
   fullName: string | null;
+  avatarUrl: string | null;
+  address: string | null;
+  phone: string | null;
+  title: string | null;
+  organization: string | null;
+  bio: string | null;
   role: UserRole;
   deptId: number | null;
   departmentName: string | null;
@@ -143,36 +149,80 @@ export const getCurrentUserProfile = async (userId: string, email?: string | nul
     id: profile.id,
     email: profile.email,
     fullName: profile.fullName,
+    avatarUrl: profile.avatarUrl,
+    address: profile.address,
+    phone: profile.phone,
+    title: profile.title,
+    organization: profile.organization,
+    bio: profile.bio,
     role: profile.role,
     deptId: profile.deptId,
     departmentName: profile.dept?.name ?? null,
   };
 };
 
-export const updateCurrentUserProfile = async (userId: string, deptId: number | null) => {
-  if (deptId !== null) {
+export const updateCurrentUserProfile = async (
+  userId: string,
+  input: {
+    fullName: string;
+    avatarUrl: string;
+    address: string;
+    phone: string;
+    title: string;
+    organization: string;
+    bio: string;
+    deptId: number | null;
+  },
+) => {
+  const trimmedFullName = input.fullName.trim();
+  if (!trimmedFullName) {
+    throw new Error("Full name is required.");
+  }
+
+  let departmentName: string | null = null;
+  if (input.deptId !== null) {
     const department = await prisma.deptMaster.findUnique({
-      where: { id: deptId },
-      select: { id: true, isActive: true },
+      where: { id: input.deptId },
+      select: { id: true, name: true, isActive: true },
     });
 
     if (!department || !department.isActive) {
       throw new Error("Department not found or inactive.");
     }
+
+    departmentName = department.name;
   }
 
   const profile = await prisma.userProfile.update({
     where: { id: userId },
-    data: { deptId },
+    data: {
+      fullName: trimmedFullName,
+      avatarUrl: input.avatarUrl.trim(),
+      address: input.address.trim(),
+      phone: input.phone.trim(),
+      title: input.title.trim(),
+      organization: input.organization.trim(),
+      bio: input.bio.trim(),
+      department: departmentName,
+      deptId: input.deptId,
+    },
     include: { dept: true },
   });
 
   await recordAuditLog({
     userId,
-    action: "UPDATE_PROFILE_DEPARTMENT",
+    action: "UPDATE_USER_PROFILE",
     entityType: "user_profiles",
     entityId: userId,
     newValues: {
+      fullName: profile.fullName,
+      avatarUrl: profile.avatarUrl,
+      address: profile.address,
+      phone: profile.phone,
+      title: profile.title,
+      organization: profile.organization,
+      bio: profile.bio,
+      department: profile.department,
       deptId: profile.deptId,
       departmentName: profile.dept?.name ?? null,
     },
@@ -182,6 +232,12 @@ export const updateCurrentUserProfile = async (userId: string, deptId: number | 
     id: profile.id,
     email: profile.email,
     fullName: profile.fullName,
+    avatarUrl: profile.avatarUrl,
+    address: profile.address,
+    phone: profile.phone,
+    title: profile.title,
+    organization: profile.organization,
+    bio: profile.bio,
     role: profile.role,
     deptId: profile.deptId,
     departmentName: profile.dept?.name ?? null,

@@ -100,6 +100,12 @@ export type OperationsSummary = {
     id: string;
     email: string;
     fullName: string | null;
+    avatarUrl: string | null;
+    address: string | null;
+    phone: string | null;
+    title: string | null;
+    organization: string | null;
+    bio: string | null;
     role: "ADMIN" | "MANAGER" | "USER";
     deptId: number | null;
     departmentName: string | null;
