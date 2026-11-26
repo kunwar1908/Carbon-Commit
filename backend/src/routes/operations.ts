@@ -49,6 +49,13 @@ const exportSchema = z.object({
 });
 
 const profileUpdateSchema = z.object({
+  fullName: z.string().trim().min(1, "Full name is required."),
+  avatarUrl: z.string().trim(),
+  address: z.string().trim(),
+  phone: z.string().trim(),
+  title: z.string().trim(),
+  organization: z.string().trim(),
+  bio: z.string().trim(),
   deptId: z.number().int().positive().nullable(),
 });
 
@@ -100,9 +107,9 @@ operationsRouter.patch("/profile", async (req, res, next) => {
       return;
     }
 
-    const { deptId } = profileUpdateSchema.parse(req.body);
+    const profileInput = profileUpdateSchema.parse(req.body);
     await getCurrentUserProfile(req.user.id, req.user.email);
-    const profile = await updateCurrentUserProfile(req.user.id, deptId);
+    const profile = await updateCurrentUserProfile(req.user.id, profileInput);
     res.json({ data: profile });
   } catch (error) {
     next(error);
