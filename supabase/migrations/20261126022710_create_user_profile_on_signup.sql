@@ -22,8 +22,8 @@ BEGIN
     RAISE EXCEPTION 'An email address is required to create a user profile.';
   END IF;
 
-  INSERT INTO public.user_profiles (id, email, full_name)
-  VALUES (NEW.id::text, NEW.email, full_name_value);
+  INSERT INTO public.user_profiles (id, email, full_name, updated_at)
+  VALUES (NEW.id::text, NEW.email, full_name_value, now());
 
   RETURN NEW;
 END;

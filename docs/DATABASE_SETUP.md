@@ -57,7 +57,7 @@ postgresql://postgres.ssnbnsockfjgsheigkbv:Singhpreet%40190804@aws-1-ap-south-1.
 
 ### Supabase Auth signup profiles
 
-Apply [`supabase/migrations/20261126022710_create_user_profile_on_signup.sql`](../supabase/migrations/20261126022710_create_user_profile_on_signup.sql) using the Supabase SQL Editor or Supabase CLI. It installs an `auth.users` trigger that creates a matching `user_profiles` row using the signup `full_name` metadata and rejects signups whose name is empty or whitespace-only. The signup form collects and validates this name before submitting.
+Apply [`supabase/migrations/20261126094229_repair_signup_profile_timestamp.sql`](../supabase/migrations/20261126094229_repair_signup_profile_timestamp.sql) using the Supabase SQL Editor or Supabase CLI. It ensures the `auth.users` trigger writes `updated_at` when creating a matching `user_profiles` row, and rejects signups whose name is empty or whitespace-only. The signup form collects and validates this name before submitting. Use this latest migration rather than re-running an older signup migration.
 
 ### Step 1: Fix Database URL
 Edit `backend/.env`:
