@@ -55,6 +55,7 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [profileDataLoading, setProfileDataLoading] = useState(true);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [dragActive, setDragActive] = useState(false);
 
@@ -66,6 +67,7 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
     const metadata = (session.user.user_metadata ?? {}) as Record<string, unknown>;
 
     const loadProfileData = async () => {
+      setProfileDataLoading(true);
       const [referenceData, summary] = await Promise.all([
         api.getReferenceData(session.access_token),
         api.getOperationsSummary(session.access_token),
@@ -84,7 +86,6 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
 
     setFullName(getMetadataValue(metadata, "full_name"));
     setAvatarUrl(getMetadataValue(metadata, "avatar_url"));
-    setDepartmentId("");
     setAddress(getMetadataValue(metadata, "address"));
     setPhone(getMetadataValue(metadata, "phone"));
     setTitle(getMetadataValue(metadata, "title"));
@@ -98,6 +99,8 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
     setSaving(false);
     void loadProfileData().catch((loadError) => {
       setError(loadError instanceof Error ? loadError.message : "Failed to load departments.");
+    }).finally(() => {
+      setProfileDataLoading(false);
     });
   }, [open, session]);
 
@@ -307,6 +310,8 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
                     <span className="mb-2 block text-sm font-medium text-white/90">Department</span>
                   <select
                     value={departmentId}
+                    disabled={profileDataLoading}
+                    aria-busy={profileDataLoading}
                     onChange={(e) => setDepartmentId(e.target.value ? Number(e.target.value) : "")}
                       className="w-full rounded-2xl border border-white/20 bg-white/90 px-4 py-3 pr-10 text-sm text-carbon-900 outline-none transition focus:border-white/40 appearance-none cursor-pointer"
                     style={{
@@ -318,7 +323,9 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
                       appearance: 'none',
                     }}
                   >
-                      <option value="" className="bg-white text-carbon-900">Select department</option>
+                      <option value="" className="bg-white text-carbon-900">
+                        {profileDataLoading ? "Loading departments..." : "Select department"}
+                      </option>
                       {departments.map((departmentOption) => (
                         <option key={departmentOption.id} value={departmentOption.id} className="bg-white text-carbon-900">
                           {departmentOption.name}
