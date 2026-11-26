@@ -16,7 +16,7 @@ type ToastProps = {
 
 export const ToastContainer = ({ toasts, onRemove }: ToastProps) => {
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
+    <div className="fixed top-4 right-4 z-[60] space-y-2">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onRemove={onRemove} />
       ))}

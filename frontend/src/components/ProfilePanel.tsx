@@ -102,7 +102,7 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
     }).finally(() => {
       setProfileDataLoading(false);
     });
-  }, [open, session]);
+  }, [open, session.user.id]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -126,37 +126,47 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
     setError(null);
     setMessage(null);
 
-    const selectedDepartment = departments.find((option) => option.id === departmentId);
-    const updatePayload: Parameters<typeof supabase.auth.updateUser>[0] = {
-      data: {
-        avatar_url: avatarUrl.trim(),
-        full_name: trimmedFullName,
-        department: selectedDepartment?.name ?? "",
-        address: address.trim(),
-        phone: phone.trim(),
-        title: title.trim(),
-        organization: organization.trim(),
-        bio: bio.trim(),
-      },
-    };
-
-    if (trimmedEmail && trimmedEmail !== session.user.email) {
-      updatePayload.email = trimmedEmail;
-    }
-
-    if (trimmedPassword) {
-      updatePayload.password = trimmedPassword;
-    }
-
-    const { error: updateError } = await supabase.auth.updateUser(updatePayload);
-
-    if (updateError) {
-      setError(updateError.message);
-      setSaving(false);
-      return;
-    }
+    let authUpdated = false;
 
     try {
+      const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+      if (refreshError || !refreshedSession) {
+        throw new Error("Your session could not be refreshed. Please sign in again before saving changes.");
+      }
+
+      const selectedDepartment = departments.find((option) => option.id === departmentId);
+      const updatePayload: Parameters<typeof supabase.auth.updateUser>[0] = {
+        data: {
+          avatar_url: avatarUrl.trim(),
+          full_name: trimmedFullName,
+          department: selectedDepartment?.name ?? "",
+          address: address.trim(),
+          phone: phone.trim(),
+          title: title.trim(),
+          organization: organization.trim(),
+          bio: bio.trim(),
+        },
+      };
+
+      if (trimmedEmail && trimmedEmail !== session.user.email) {
+        updatePayload.email = trimmedEmail;
+      }
+
+      if (trimmedPassword) {
+        updatePayload.password = trimmedPassword;
+      }
+
+      const { error: updateError } = await supabase.auth.updateUser(updatePayload);
+      if (updateError) {
+        throw updateError;
+      }
+      authUpdated = true;
+
+      const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !currentSession) {
+        throw new Error("Your session is no longer available. Please sign in again to finish saving your profile.");
+      }
+
       await api.updateProfile({
         fullName: trimmedFullName,
         avatarUrl: avatarUrl.trim(),
@@ -166,27 +176,31 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
         organization: organization.trim(),
         bio: bio.trim(),
         deptId: departmentId === "" ? null : departmentId,
-      }, session.access_token);
-    } catch (profileError) {
-      setError(profileError instanceof Error ? profileError.message : "Failed to update profile.");
+      }, currentSession.access_token);
+
+      const messages = ["Profile updated successfully."];
+      if (trimmedEmail && trimmedEmail !== session.user.email) {
+        messages.push("If you changed your email, check your inbox to confirm it.");
+      }
+      if (trimmedPassword) {
+        messages.push("Your password has been updated.");
+      }
+
+      const fullMessage = messages.join(" ");
+      setMessage(fullMessage);
+      onSaveSuccess?.(fullMessage);
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (saveError) {
+      const reason = saveError instanceof Error ? saveError.message : "Unexpected error.";
+      setError(
+        authUpdated
+          ? `Your account details were updated, but the profile record could not be saved: ${reason}`
+          : reason,
+      );
+    } finally {
       setSaving(false);
-      return;
     }
-
-    const messages = ["Profile updated successfully."];
-    if (trimmedEmail && trimmedEmail !== session.user.email) {
-      messages.push("If you changed your email, check your inbox to confirm it.");
-    }
-    if (trimmedPassword) {
-      messages.push("Your password has been updated.");
-    }
-
-    const fullMessage = messages.join(" ");
-    setMessage(fullMessage);
-    onSaveSuccess?.(fullMessage);
-    setNewPassword("");
-    setConfirmPassword("");
-    setSaving(false);
   };
 
   const uploadAvatar = async (file: File) => {
@@ -202,20 +216,24 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
     const extension = file.name.includes(".") ? file.name.split(".").pop() : "png";
     const filePath = `profiles/${session.user.id}/${Date.now()}.${extension}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from("profile-pictures")
-      .upload(filePath, file, { upsert: true, cacheControl: "3600" });
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from("profile-pictures")
+        .upload(filePath, file, { upsert: true, cacheControl: "3600" });
 
-    if (uploadError) {
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabase.storage.from("profile-pictures").getPublicUrl(filePath);
+      setAvatarUrl(data.publicUrl);
+      setMessage("Profile image uploaded. Save changes to persist it in profile metadata.");
+    } catch (uploadError) {
+      const reason = uploadError instanceof Error ? uploadError.message : "Unexpected error.";
+      setError(`Image upload failed: ${reason}`);
+    } finally {
       setUploadingAvatar(false);
-      setError(uploadError.message);
-      return;
     }
-
-    const { data } = supabase.storage.from("profile-pictures").getPublicUrl(filePath);
-    setAvatarUrl(data.publicUrl);
-    setUploadingAvatar(false);
-    setMessage("Profile image uploaded. Save changes to persist it in profile metadata.");
   };
 
   const handleAvatarInput = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -450,10 +468,10 @@ export const ProfilePanel = ({ session, open, onClose, onSaveSuccess }: ProfileP
             </p>
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || uploadingAvatar}
               className="rounded-2xl bg-accent-500 px-5 py-3 text-sm font-semibold text-carbon-900 transition hover:bg-accent-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {saving ? "Saving..." : "Save Changes"}
+              {uploadingAvatar ? "Uploading image..." : saving ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>

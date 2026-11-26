@@ -315,6 +315,7 @@ export const Dashboard = ({ session, onSignOut }: DashboardProps) => {
             onClose={() => setProfileOpen(false)}
             onSaveSuccess={(msg) => {
               addToast(msg, "success");
+              setProfileOpen(false);
               void refreshData();
             }}
           />

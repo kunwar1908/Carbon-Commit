@@ -59,6 +59,10 @@ postgresql://postgres.ssnbnsockfjgsheigkbv:Singhpreet%40190804@aws-1-ap-south-1.
 
 Apply [`supabase/migrations/20261126094229_repair_signup_profile_timestamp.sql`](../supabase/migrations/20261126094229_repair_signup_profile_timestamp.sql) using the Supabase SQL Editor or Supabase CLI. It ensures the `auth.users` trigger writes `updated_at` when creating a matching `user_profiles` row, and rejects signups whose name is empty or whitespace-only. The signup form collects and validates this name before submitting. Use this latest migration rather than re-running an older signup migration.
 
+### Profile picture storage
+
+Apply [`supabase/migrations/20261126095753_setup_profile_picture_storage.sql`](../supabase/migrations/20261126095753_setup_profile_picture_storage.sql) to create the public `profile-pictures` bucket and its access policies. Signed-in users can manage files only in their own `profiles/<user-id>/` folder; profile images can be read publicly.
+
 ### Step 1: Fix Database URL
 Edit `backend/.env`:
 ```bash
